@@ -4,10 +4,10 @@
 title = MICA Reader 
 
 # (str) Package name
-package.name = mica
+package.name = reader
 
 # (str) Package domain (needed for android/ios packaging)
-package.domain = com.michael
+package.domain = com.mica
 
 # (str) Source code where the main.py live
 source.dir = .
