@@ -1,0 +1,7 @@
+.buildozer
+service/params.py
+service/mica
+*.pyc
+bin
+service/.cache
+*.swp
