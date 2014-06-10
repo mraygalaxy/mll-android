@@ -47,7 +47,7 @@ icon.filename = %(source.dir)s/icon.png
 orientation = landscape
 
 # (bool) Indicate if the application should be fullscreen or not
-fullscreen = 0
+fullscreen = 1
 
 
 #

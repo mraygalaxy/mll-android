@@ -1,0 +1,48 @@
+<html>
+    <head>
+<script>
+function check_available(ip){
+    var el=document.getElementById("check_pic");
+    el.src="http://"+ip+"/serve/favicon.ico?now="+Math.random();    
+}
+
+function check_success(url){
+  window.location = url;
+}
+</script>
+    <style>
+.outer {
+    display: table;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+}
+
+.middle {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.inner1 {
+    margin-left: auto;
+    margin-right: auto; 
+    width: 20%;
+}
+.inner2 {
+    margin-left: auto;
+    margin-right: auto; 
+    width: 40%;
+    font-size: 300%;
+}
+.inner3 {
+    margin-left: auto;
+    margin-right: auto; 
+    width: 60%;
+    font-size: 200%;
+}
+    </style>
+    </head>            
+    <body>
+<div class="outer">
+<div class="middle">
+<div class="inner1">
