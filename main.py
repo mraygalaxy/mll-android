@@ -9,15 +9,17 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.textinput import TextInput
 from kivy.uix.image import Image
-
+import webbrowser
 
 class ServiceApp(App):
     def build(self):
+	'''
         if platform == "android" :
             from android import AndroidService
             service = AndroidService('mica', 'synchronized')
             service.start('service started')
             self.service = service
+	'''
 
         layout = BoxLayout(orientation='vertical')
         btn1 = Button(text='Hello')
@@ -28,6 +30,7 @@ class ServiceApp(App):
         layout.add_widget(btn2)
         layout.add_widget(txt1)
         layout.add_widget(img)
+	webbrowser.open("http://www.google.com.hk")
         return layout
 
 if __name__ == '__main__':
