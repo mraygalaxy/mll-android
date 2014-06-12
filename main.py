@@ -12,6 +12,7 @@ from android.runnable import run_on_ui_thread
 import base64
 import re
 import os
+import urllib2
                  
 cwd = re.compile(".*\/").search(os.path.realpath(__file__)).group(0)
 WebView = autoclass('android.webkit.WebView')
@@ -20,52 +21,66 @@ activity = autoclass('org.renpy.android.PythonActivity').mActivity
 String = autoclass('java.lang.String')
 
 def second_splash() :
+    fh = open(cwd + "splash_template.html", 'r') 
+    output = fh.read()
+    fh.close() 
+
     fh = open(cwd + "icon.png", 'r')
     contents = fh.read() 
     encoded1 = base64.b64encode(contents)
     fh.close()
-    fh = open(cwd + "service/mica/serve/spinner.gif", 'r')
-    contents = fh.read() 
-    encoded2 = base64.b64encode(contents)
-    fh.close()
-    fh = open(cwd + "splash_template.html", 'r') 
-    output = fh.read()
-    fh.close() 
+
     output += "<img src='data:image/jpeg;base64," + str(encoded1) + "' width='100%'/>"
     output += """
 </div>
 <div class="inner2">
 """
     output += "<p><p><p>"
-    output += "<img src='data:image/jpeg;base64," + str(encoded2) + "' width='15%'/>"
+    fh = open(cwd + "service/mica/serve/spinner.gif", 'r')
+    contents = fh.read() 
+    encoded2 = base64.b64encode(contents)
+    fh.close()
+    output += "<img src='data:image/jpeg;base64," + str(encoded2) + "' width='10%'/>"
     output += "&nbsp;&nbsp;Please wait...</p>"
     output += """
 </div>
 <div class="inner3">
-                (We're pulling in a lot of dependencies.)
+(We're pulling in a lot of dependencies.)
 </div>
-</div>
-</div>
-<img style="visibility:hidden" id='check_pic' src="/serve/favicon.ico" onabort="alert('interrupted')" onload="check_success('http://127.0.0.1:10000/')" onerror="check_available('127.0.0.1:10000')"/>
-    </body>
+</body>
 </html>
 """
     return output
+
 class Wv(Widget):
     def __init__(self, **kwargs):
         super(Wv, self).__init__(**kwargs)
         Clock.schedule_once(self.create_webview, 0)
     
     @run_on_ui_thread
+    def go(self, *args) :
+        try:
+            urllib2.urlopen('http://localhost:10000/serve/favicon.ico')
+            self.webview.loadUrl('http://localhost:10000/')
+            return
+        except urllib2.HTTPError, e:
+            print(e.code)
+        except urllib2.URLError, e:
+            print(e.args)
+        Clock.schedule_once(self.go, 1)
+
+    @run_on_ui_thread
     def create_webview(self, *args):
-        webview = WebView(activity)
-        webview.getSettings().setJavaScriptEnabled(True)
-        webview.getSettings().setBuiltInZoomControls(True)
+        self.webview = WebView(activity)
+        self.webview.getSettings().setJavaScriptEnabled(True)
+        self.webview.getSettings().setBuiltInZoomControls(True)
+        self.webview.getSettings().setAllowUniversalAccessFromFileURLs(True)
         wvc = WebViewClient();
-        webview.setWebViewClient(wvc);
-        activity.setContentView(webview)
-        #webview.loadUrl('http://localhost:10000')
-        webview.loadData(String(second_splash()), "text/html", "utf-8");
+        self.webview.setWebViewClient(wvc);
+        #WebView.setWebContentsDebuggingEnabled(True);
+        activity.setContentView(self.webview)
+        self.webview.loadData(String(second_splash()), "text/html", "utf-8");
+        Clock.schedule_once(self.go, 5)
 
 class ReaderApp(App):
     def build(self):

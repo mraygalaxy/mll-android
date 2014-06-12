@@ -58,10 +58,10 @@ fullscreen = 1
 android.permissions = INTERNET
 
 # (int) Android API to use
-#android.api = 14
+android.api = 16
 
 # (int) Minimum API required (8 = Android 2.2 devices)
-#android.minapi = 8
+android.minapi = 16 
 
 # (int) Android SDK version to use
 #android.sdk = 21
@@ -92,7 +92,8 @@ android.permissions = INTERNET
 # down the build process. Allows wildcards matching, for example:
 # OUYA-ODK/libs/*.jar
 
-android.add_jars = %(source.dir)s/jars/couchbase-lite-java-core-0.0.0-396.jar,%(source.dir)s/jars/couchbase-lite-android-0.0.0-396.jar,%(source.dir)s/jars/couchbase-lite-java-javascript-0.0.0-396.jar,%(source.dir)s/jars/couchbase-lite-java-listener-0.0.0-396.jar,%(source.dir)s/jars/rhino-1.7R3.jar,%(source.dir)s/jars/commons-io-2.0.1.jar,%(source.dir)s/jars/jackson-core-asl-1.9.2.jar,%(source.dir)s/jars/jackson-mapper-asl-1.9.2.jar,%(source.dir)s/jars/servlet-2-3.jar,%(source.dir)s/jars/webserver-2-3.jar
+#android.add_jars = %(source.dir)s/jars/couchbase-lite-java-core-0.0.0-396.jar,%(source.dir)s/jars/couchbase-lite-android-0.0.0-396.jar,%(source.dir)s/jars/couchbase-lite-java-javascript-0.0.0-396.jar,%(source.dir)s/jars/couchbase-lite-java-listener-0.0.0-396.jar,%(source.dir)s/jars/rhino-1.7R3.jar,%(source.dir)s/jars/commons-io-2.0.1.jar,%(source.dir)s/jars/jackson-core-asl-1.9.2.jar,%(source.dir)s/jars/jackson-mapper-asl-1.9.2.jar,%(source.dir)s/jars/servlet-2-3.jar,%(source.dir)s/jars/webserver-2-3.jar
+android.add_jars = %(source.dir)s/jars/couchbase-lite-java-core-custom.jar,%(source.dir)s/jars/couchbase-lite-android-custom.jar,%(source.dir)s/jars/couchbase-lite-java-javascript-0.0.0-396.jar,%(source.dir)s/jars/couchbase-lite-java-listener-0.0.0-396.jar,%(source.dir)s/jars/rhino-1.7R3.jar,%(source.dir)s/jars/commons-io-2.0.1.jar,%(source.dir)s/jars/jackson-core-asl-1.9.2.jar,%(source.dir)s/jars/jackson-mapper-asl-1.9.2.jar,%(source.dir)s/jars/servlet-2-3.jar,%(source.dir)s/jars/webserver-2-3.jar
 
 # (list) List of Java files to add to the android project (can be java or a
 # directory containing the files)
