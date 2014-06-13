@@ -95,6 +95,9 @@ public class Couch {
     private HashMap<String, Object> pulls;
     private HashMap<String, Object> pushes;
     private HashMap<String, Object> seeds;
+    String cert_path = null;
+    Service mService = null;
+    
 
     public class MySSLSocketFactory extends SSLSocketFactory {
          SSLContext sslContext = SSLContext.getInstance("TLS");
@@ -139,10 +142,8 @@ public class Couch {
         }
     }
  
-    private void initializeSecurity(Service mService, CouchbaseLiteHttpClientFactory factory, String cert_path) throws IOException, CertificateException, KeyStoreException, NoSuchAlgorithmException, KeyManagementException, InterruptedException, UnrecoverableKeyException {
+    private void initializeSecurity(CouchbaseLiteHttpClientFactory factory) throws IOException, CertificateException, KeyStoreException, NoSuchAlgorithmException, KeyManagementException, InterruptedException, UnrecoverableKeyException {
         AssetManager am = mService.getAssets();
-        //InputStream is = am.open(cert_path);
-//        InputStream is = new ByteArrayInputStream(cert_path.getBytes("UTF-8"));
         InputStream is = IOUtils.toInputStream(cert_path, "UTF-8");
         // Load CAs from an InputStream
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
@@ -178,12 +179,13 @@ public class Couch {
         }
     }
 
-    public Couch(Service mService) throws IOException {
+    public Couch(String username, String password, int suggestedListenPort, String cert, Service service) throws IOException {
         try {
             dbs = new HashMap<String, Object>();
             pulls = new HashMap<String, Object>();
             pushes = new HashMap<String, Object>();
             seeds = new HashMap<String, Object>();
+	    mService = service;
             System.out.println(TAG + "Trying to get application context.");
             context = mService.getApplicationContext();
             System.out.println(TAG + "Trying to get build android context.");
@@ -205,15 +207,23 @@ public class Couch {
             System.out.println(TAG + "Manager stores database here: " + manager.getDirectory());
             System.out.println(TAG + "Listing databases.");
             for (String dbname : manager.getAllDatabaseNames()) {
-                System.out.println(TAG + "Manager has database: " + dbname);
+                System.out.println(TAG + "Manager has databases: " + dbname);
             }
             System.out.println(TAG + "Finished listing databases.");
+
+	    System.out.println(TAG + "Trying to start listener on port: " + suggestedListenPort);
+	    Credentials creds = new Credentials(username, password);
+	    listener = new LiteListener(manager, suggestedListenPort, creds);
+	    listenerThread = new Thread(listener);
+	    listenerThread.start();
+	    cert_path = cert;
+
         } catch (Exception e) {
 		dumpError(e);
         }
     }
 
-    public int start(String username, String password, int suggestedListenPort, String database_name, String cert_path, Service mService) throws IOException, CouchbaseLiteException {
+    public int start(String database_name) throws IOException, CouchbaseLiteException {
         try {
                 if (dbs.get(database_name) == null) {
                     System.out.println(TAG + "Trying to open database: " + database_name);
@@ -224,15 +234,7 @@ public class Couch {
                     PersistentCookieStore cookieStore = database.getPersistentCookieStore();
                     CouchbaseLiteHttpClientFactory htf = new CouchbaseLiteHttpClientFactory(cookieStore);
                     manager.setDefaultHttpClientFactory(htf);
-                    initializeSecurity(mService, htf, cert_path);
-
-                    if (listener == null) {
-                            System.out.println(TAG + "Trying to start listener on port: " + suggestedListenPort);
-                            Credentials creds = new Credentials(username, password);
-                            listener = new LiteListener(manager, suggestedListenPort, creds);
-                            listenerThread = new Thread(listener);
-                            listenerThread.start();
-                    }
+                    initializeSecurity(htf);
                 }
 
 		System.out.println(TAG + "We're ready to go!");
@@ -242,6 +244,35 @@ public class Couch {
         }
 
 	return -1;
+    }
+
+    public void drop(String database_name) {
+	if (dbs.get(database_name) != null) {
+             System.out.println(TAG + "Compacting database: " + database_name);
+	     Database db = dbs.get(database_name);
+	     db.compact();
+             System.out.println(TAG + "Compaction finished: " + database_name);
+	}
+    }
+
+    public void drop(String database_name) {
+	if (pushes.get(database_name) != null) {
+	     Replication push = (Replication) pushes.remove(database_name);
+	     push.stop();
+             System.out.println(TAG + "Stopped push replication.");
+        }
+
+	if (pulls.get(database_name) != null) {
+	     Replication pull = (Replication) pulls.remove(database_name);
+	     pull.stop();
+             System.out.println(TAG + "Stopped pull replication.");
+        }
+
+	if (dbs.get(database_name) != null) {
+	     Database db = dbs.get(database_name);
+	     db.delete();
+             System.out.println(TAG + "Deleted database: " + database_name);
+	}
     }
 
     public int replicate(String database_name, String server, String username, String password) {
@@ -298,8 +329,6 @@ public class Couch {
         pull.start();
         push.start();
 
-        // It's important to keep a reference to a running replication,
-        // or it is likely to be gc'd!
         pulls.put(database_name, pull);
         pushes.put(database_name, push);
 

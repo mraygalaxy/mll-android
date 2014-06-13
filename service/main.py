@@ -19,20 +19,7 @@ CouchBase = autoclass("org.renpy.android.Couch")
 print "Loading mica services"
 
 if __name__ == '__main__':
-    couch = CouchBase(PythonService.mService)
-    port = couch.start(String(app["local_username"]), String(app["local_password"]), app["local_port"], String(app["local_database"]), String(cert), PythonService.mService)
-
-    if port == -1 :
-        print "AAAHHHHHH. FAILURE."
-    else :
-        print "Trying to start replication"
-        user = app["remote_user"] 
-        pw = app["remote_password"] 
-        url = app["remote_protocol"] + "://" + user + ":" + pw + "@" + app["remote_host"] + ":" + str(app["remote_port"])
-        if couch.replicate(String(app["remote_database"]), String(url), String(user), String(pw)) == -1 :
-            print "Replication failed. Boo. =("
-        else :
-            print "Replication started. Yay."
+    couch = CouchBase(String(app["local_username"]), String(app["local_password"]), app["local_port"], String(cert), PythonService.mService)
 
     from mica.mica import go
     parameters["couch"] = couch
