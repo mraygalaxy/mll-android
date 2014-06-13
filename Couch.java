@@ -493,16 +493,13 @@ public class Couch {
         return new Status(Status.OK);
     }
 
-    public void view_seed(String uuid, String username, String key_value) {
+    public void view_seed(String uuid, String key_value) {
         if(seeds.get(uuid) == null) {
             //System.out.println(TAG + "New set of seeds for uuid " + uuid + ", example: " + key_value);
             List<Object> keylist = new ArrayList<Object>();
             seeds.put(uuid, keylist);
         }
-        List<String> keypair = new ArrayList<String>();
-        keypair.add(username);
-        keypair.add(key_value);
-        ((List<Object>) seeds.get(uuid)).add(keypair);
+        ((List<Object>) seeds.get(uuid)).add(key_value);
     }
 
     public void view_seed_cleanup(String uuid) {
@@ -529,7 +526,7 @@ public class Couch {
 
 	return v;
     }
-    public Iterator<QueryRow> view(String dbname, String designDoc, String viewName, String parameters, String username) {
+    public Iterator<QueryRow> view(String dbname, String designDoc, String viewName, String parameters) {
         try {
             Database database = (Database) dbs.get(dbname);
             String name = designDoc + "/" + viewName;
