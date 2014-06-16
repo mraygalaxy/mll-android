@@ -13,7 +13,7 @@ package.domain = com.mica
 source.dir = .
 
 # (list) Source files to include (let empty to include all the files)
-source.include_exts = py,png,jpg,kv,atlas,db,crt,key,txt,js,css,html,gif,ico,svg,eot,woff,ttf
+source.include_exts = py,png,jpg,kv,atlas,db,crt,txt,js,css,html,gif,ico,svg,eot,woff,ttf
 
 # (list) Source files to exclude (let empty to not exclude anything)
 #source.exclude_exts = spec
@@ -55,7 +55,7 @@ fullscreen = 1
 #
 
 # (list) Permissions
-android.permissions = INTERNET
+android.permissions = INTERNET,ACCESS_NETWORK_STATE
 
 # (int) Android API to use
 android.api = 16
@@ -97,7 +97,7 @@ android.add_jars = %(source.dir)s/jars/couchbase-lite-java-core-custom.jar,%(sou
 
 # (list) List of Java files to add to the android project (can be java or a
 # directory containing the files)
-android.add_src = %(source.dir)s/Couch.java
+android.add_src = %(source.dir)s/Couch.java,%(source.dir)s/Internet.java
 
 # (str) python-for-android branch to use, if not master, useful to try
 # not yet merged features.

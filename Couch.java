@@ -46,6 +46,7 @@ import com.couchbase.lite.View.TDViewCollation;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PushbackInputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
@@ -223,6 +224,10 @@ public class Couch {
         }
     }
 
+    public boolean exists(String database_name) throws CouchbaseLiteException {
+	return manager.getExistingDatabase(database_name) != null;
+    }
+
     public int start(String database_name) throws IOException, CouchbaseLiteException {
         try {
                 if (dbs.get(database_name) == null) {
@@ -246,16 +251,7 @@ public class Couch {
 	return -1;
     }
 
-    public void drop(String database_name) {
-	if (dbs.get(database_name) != null) {
-             System.out.println(TAG + "Compacting database: " + database_name);
-	     Database db = dbs.get(database_name);
-	     db.compact();
-             System.out.println(TAG + "Compaction finished: " + database_name);
-	}
-    }
-
-    public void drop(String database_name) {
+    public void stop_replication(String database_name) {
 	if (pushes.get(database_name) != null) {
 	     Replication push = (Replication) pushes.remove(database_name);
 	     push.stop();
@@ -267,11 +263,38 @@ public class Couch {
 	     pull.stop();
              System.out.println(TAG + "Stopped pull replication.");
         }
+    }
+
+    public void compact(String database_name) throws CouchbaseLiteException {
+	if (dbs.get(database_name) != null) {
+             System.out.println(TAG + "Compacting database: " + database_name);
+	     Database db = (Database) dbs.get(database_name);
+	     db.compact();
+             System.out.println(TAG + "Compaction finished: " + database_name);
+	}
+    }
+
+    public void drop(String database_name) throws CouchbaseLiteException {
+        stop_replication(database_name);
 
 	if (dbs.get(database_name) != null) {
-	     Database db = dbs.get(database_name);
+	     Database db = (Database) dbs.remove(database_name);
 	     db.delete();
              System.out.println(TAG + "Deleted database: " + database_name);
+	}
+    }
+
+    public void stop(String database_name) {
+	stop_replication(database_name);
+
+	if (dbs.get(database_name) != null) {
+	     Database db = (Database) dbs.remove(database_name);
+	    /* 
+	     * The CBL api doesn't have a 'close' database (nor in the manager).
+	     * At least, I couldn't find it in the documentation.
+	     */
+	     //db.close();
+             System.out.println(TAG + "Closed database: " + database_name);
 	}
     }
 
@@ -397,7 +420,20 @@ public class Couch {
         }
     }
 
-    public byte[] get_attachment(String dbname, String name, String filename) {
+    public static InputStream decompressStream(InputStream input) throws IOException {
+         PushbackInputStream pb = new PushbackInputStream( input, 2 );
+         byte [] signature = new byte[2];
+         pb.read( signature );
+         pb.unread( signature );
+         if( signature[ 0 ] == (byte) 0x1f && signature[ 1 ] == (byte) 0x8b )  {
+            System.out.println(TAG + "Attachment is compressed. Need to decompress it first.");
+           return new GZIPInputStream( pb );
+         } else {
+           return pb;
+         }
+    }
+
+    public byte[] get_attachment(String dbname, String name, String filename) throws IOException {
         try {
             Database database = (Database) dbs.get(dbname);
             Document doc = database.getExistingDocument(name);
@@ -413,19 +449,12 @@ public class Couch {
                 System.out.println(TAG + "Document: " + name + " has no such attachment: " + filename);
             }
 
-            InputStream is = att.getContent();
+            InputStream is = decompressStream(att.getContent());
             byte[] result;
-            ///if (att.getGZipped()) {
-                System.out.println(TAG + "Attachment is compressed. Need to decompress it first.");
-                 InputStream decompressed = new GZIPInputStream(is);
-                 result = IOUtils.toByteArray(decompressed);
+            //if (att.getGZipped()) // doesn't work
             /* couchdb is lying. use magic number method later. I filed a bug on github. No response yet. */
-            /*
-            } else {
-                 result = IOUtils.toByteArray(is);
-                 System.out.println(TAG + "Attachment is not compressed.");
-            }
-            */
+
+            result = IOUtils.toByteArray(is);
             //System.out.println(TAG + "Got " + result.length + " bytes.");
             return result;
         } catch(Exception e) {
@@ -522,13 +551,18 @@ public class Couch {
         return new Status(Status.OK);
     }
 
-    public void view_seed(String uuid, String key_value) {
+    public void view_seed(String uuid, String username, String key_value) {
+//    public void view_seed(String uuid, String key_value) {
         if(seeds.get(uuid) == null) {
             //System.out.println(TAG + "New set of seeds for uuid " + uuid + ", example: " + key_value);
             List<Object> keylist = new ArrayList<Object>();
             seeds.put(uuid, keylist);
         }
-        ((List<Object>) seeds.get(uuid)).add(key_value);
+//        ((List<Object>) seeds.get(uuid)).add(key_value);
+        List<String> keypair = new ArrayList<String>();
+        keypair.add(username);
+        keypair.add(key_value);
+        ((List<Object>) seeds.get(uuid)).add(keypair);
     }
 
     public void view_seed_cleanup(String uuid) {
@@ -555,7 +589,8 @@ public class Couch {
 
 	return v;
     }
-    public Iterator<QueryRow> view(String dbname, String designDoc, String viewName, String parameters) {
+    public Iterator<QueryRow> view(String dbname, String designDoc, String viewName, String parameters, String username) {
+//    public Iterator<QueryRow> view(String dbname, String designDoc, String viewName, String parameters) {
         try {
             Database database = (Database) dbs.get(dbname);
             String name = designDoc + "/" + viewName;
@@ -671,4 +706,5 @@ public class Couch {
             return null;
         }
     }
+ 
 }
