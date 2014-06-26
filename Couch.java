@@ -5,8 +5,15 @@
  * as well as activate couchbase-Lite replication between the mobile application and server.
  *
  */
+
 package org.renpy.android;
 
+import org.renpy.android.Internet;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.wifi.WifiManager;
+import android.os.Bundle;
+import android.content.BroadcastReceiver;
 import android.app.Service;
 import android.content.res.AssetManager;
 
@@ -95,9 +102,12 @@ public class Couch {
     private HashMap<String, Object> dbs;
     private HashMap<String, Object> pulls;
     private HashMap<String, Object> pushes;
+    private HashMap<String, Object> urls;
     private HashMap<String, Object> seeds;
     String cert_path = null;
     Service mService = null;
+    private BroadcastReceiver wifi_receiver;
+    private Internet in;
     
 
     public class MySSLSocketFactory extends SSLSocketFactory {
@@ -186,6 +196,7 @@ public class Couch {
             pulls = new HashMap<String, Object>();
             pushes = new HashMap<String, Object>();
             seeds = new HashMap<String, Object>();
+            urls = new HashMap<String, Object>();
 	    mService = service;
             System.out.println(TAG + "Trying to get application context.");
             context = mService.getApplicationContext();
@@ -219,6 +230,63 @@ public class Couch {
 	    listenerThread.start();
 	    cert_path = cert;
 
+	    wifi_receiver = new BroadcastReceiver()
+		{
+			 @Override
+			 public void onReceive(android.content.Context context, Intent intent) {
+				  int extraWifiState = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE ,
+				    WifiManager.WIFI_STATE_UNKNOWN);
+				 
+				  switch(extraWifiState){
+					  case WifiManager.WIFI_STATE_DISABLED:
+					    System.out.println(TAG + "Wifi disabled.");
+					    changeAllReplications(false);
+					   break;
+					  case WifiManager.WIFI_STATE_DISABLING:
+					    System.out.println(TAG + "Wifi disabling.");
+					   break;
+					  case WifiManager.WIFI_STATE_ENABLED:
+					    System.out.println(TAG + "Wifi enabled.");
+					    changeAllReplications(true);
+					   break;
+					  case WifiManager.WIFI_STATE_ENABLING:
+					    System.out.println(TAG + "Wifi enabling.");
+					   break;
+					  case WifiManager.WIFI_STATE_UNKNOWN:
+					    System.out.println(TAG + "Wifi unknown.");
+					   break;
+				  }
+	 
+			}
+		};
+
+            mService.registerReceiver(wifi_receiver, new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION));
+
+	    in = new Internet(mService);
+
+        } catch (Exception e) {
+		dumpError(e);
+        }
+    }
+
+    private void changeAllReplications(boolean start) {
+	try {
+		    Iterator it = urls.entrySet().iterator();
+		    while (it.hasNext()) {
+			Map.Entry pairs = (Map.Entry)it.next();
+			String database_name = (String) pairs.getKey();
+			String url = (String) pairs.getValue();
+			
+			if (start) {
+			    System.out.println(TAG + "Starting replication for DB: " + database_name);
+		            replicate(database_name, url, true);
+			} else {
+			    System.out.println(TAG + "Stopping replication for DB: " + database_name);
+			    stop_replication(database_name);
+			}
+		    }
+		    System.out.println(TAG + "Change all replications exiting.");
+		    
         } catch (Exception e) {
 		dumpError(e);
         }
@@ -298,7 +366,11 @@ public class Couch {
 	}
     }
 
-    public int replicate(String database_name, String server, String username, String password) {
+    public int replicate(String database_name, String server, boolean force) {
+	if (pushes.get(database_name) != null || pulls.get(database_name) != null) {
+            System.out.println(TAG + "Database " + database_name + " is already replicating.");
+	    return 0;
+	}
         URL url;
         try {
             url = new URL(server + "/" + database_name);
@@ -307,6 +379,22 @@ public class Couch {
             return -1;
         }
         System.out.println(TAG + "creating replicator");
+
+	if (urls.get(database_name) == null) {
+		urls.put(database_name, server);
+	}
+
+	String conn = in.connected();
+	
+	if (in.connected() == "expensive") {
+		System.out.println(TAG + "Not going to start replication on 3G =(");
+		return 0;
+	} else if(force || conn == "online") {
+		System.out.println(TAG + "Starting replication!");
+	} else {
+		System.out.println(TAG + "No internet. Not starting replication.");
+		return 0;
+        }
 
         Database database = (Database) dbs.get(database_name);
         Replication pull = database.createPullReplication(url);
@@ -348,10 +436,8 @@ public class Couch {
             }
         });
 
-        System.out.println(TAG + "Starting replication!");
-        pull.start();
-        push.start();
-
+	pull.start();
+	push.start();
         pulls.put(database_name, pull);
         pushes.put(database_name, push);
 

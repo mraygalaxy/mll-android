@@ -16,12 +16,14 @@ String = autoclass('java.lang.String')
 PythonService = autoclass("org.renpy.android.PythonService")
 CouchBase = autoclass("org.renpy.android.Couch")
 MobileInternet = autoclass("org.renpy.android.Internet")
+MLog = autoclass("org.renpy.android.MLog")
 
 
 print "Loading mica services"
 
 if __name__ == '__main__':
     mobile_internet = MobileInternet(PythonService.mService)
+    duplicate_logger = MLog(PythonService.mService)
 
     couch = CouchBase(String(app["local_username"]), String(app["local_password"]), app["local_port"], String(cert), PythonService.mService)
 
@@ -34,7 +36,7 @@ if __name__ == '__main__':
         user = app["remote_user"] 
         pw = app["remote_password"] 
         url = app["remote_protocol"] + "://" + user + ":" + pw + "@" + app["remote_host"] + ":" + str(app["remote_port"])
-        if couch.replicate(String(app["remote_database"]), String(url), String(user), String(pw)) == -1 :
+        if couch.replicate(String(app["remote_database"]), String(url), False) == -1 :
             print "Replication failed. Boo. =("
         else :
             print "Replication started. Yay."
@@ -42,6 +44,7 @@ if __name__ == '__main__':
     from mica.mica import go
     parameters["couch"] = couch
     parameters["mobileinternet"] = mobile_internet
+    parameters["duplicate_logger"] = duplicate_logger
     go(parameters)
 
     while True:

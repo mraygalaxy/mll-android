@@ -44,7 +44,7 @@ presplash.filename = %(source.dir)s/splash.png
 icon.filename = %(source.dir)s/icon.png
 
 # (str) Supported orientation (one of landscape, portrait or all)
-orientation = landscape
+orientation = all
 
 # (bool) Indicate if the application should be fullscreen or not
 fullscreen = 1
@@ -97,7 +97,7 @@ android.add_jars = %(source.dir)s/jars/couchbase-lite-java-core-custom.jar,%(sou
 
 # (list) List of Java files to add to the android project (can be java or a
 # directory containing the files)
-android.add_src = %(source.dir)s/Couch.java,%(source.dir)s/Internet.java
+android.add_src = %(source.dir)s/Couch.java,%(source.dir)s/MLog.java,%(source.dir)s/Internet.java
 
 # (str) python-for-android branch to use, if not master, useful to try
 # not yet merged features.

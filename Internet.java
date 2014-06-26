@@ -14,7 +14,7 @@ public class Internet {
         this._context = service.getApplicationContext();
     }
  
-    public boolean connected(){
+    public String connected(){
         boolean online = false;
         boolean expensive = false;
         ConnectivityManager connectivity = (ConnectivityManager) _context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -24,7 +24,7 @@ public class Internet {
               NetworkInfo[] info = connectivity.getAllNetworkInfo();
               if (info != null) 
                   for (int i = 0; i < info.length; i++) 
-                      if (info[i].getState() == NetworkInfo.State.CONNECTED)
+                      if (info[i].getState() == NetworkInfo.State.CONNECTED || info[i].getState() == NetworkInfo.State.CONNECTING)
                       {
                             System.out.println("INTERNET: Yes, we are connected: type: " + info[i].getTypeName() + " (" + info[i].getType() + ")");
                             if(info[i].getType() == ConnectivityManager.TYPE_MOBILE) {
@@ -33,12 +33,25 @@ public class Internet {
                             }
                             online = true;
                       }
+                        /*
+                        else {
+                            System.out.println("INTERNET: No, we are not connected: type: " + info[i].getTypeName() + " (" + info[i].getType() + ")");
+                      }
+                        */
  
           }
                 
           if (!online) {
               System.out.println("INTERNET: No, we are offline.");
           }
-          return online;
+
+          if (online) {
+                if (expensive) {
+                        return "expensive";
+                } else {
+                        return "online";
+                }
+          }
+          return "none";
     }
 }
