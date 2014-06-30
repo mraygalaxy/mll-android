@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
-__version__ = "0.3.0"
+__version__ = "0.3.2"
 import kivy
 from kivy.app import App
 from kivy.lang import Builder
