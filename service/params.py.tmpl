@@ -1,0 +1,52 @@
+mrhines@mahler:~$ cat mica-android/service/params.py
+# coding: utf-8
+import os
+import sys
+import re
+
+cwd = re.compile(".*\/").search(os.path.realpath(__file__)).group(0) + "../"
+
+# I don't recommend changing any of these parameters unless you know what you are doing.
+parameters = {
+           "port" : 10000,
+           "sslport" : -1,
+           "host" : "0.0.0.0",
+           "keepsession" : True,
+           "debug_host" : False,
+           "log" : False,
+           "tlog" : False,
+           "cert" : cwd + "service/mica/mica.crt",
+           "privkey" : False,
+           "slaves" : False,
+           "slave_port" : False,
+           "dbname" : "mica",
+           "cedict" : cwd + "service/mica/cedict.db",
+           "tonefile" : cwd + "service/mica/chinese.txt",
+           "couch_adapter_type" : "MicaServerCouchbaseMobile",
+           "mobileinternet" : False,
+           "transreset" : False,
+           "duplicate_logger" : False,
+           "transcheck" : False,
+}
+
+# CHANGEME!
+
+app = {
+           "remote_database" : parameters["dbname"],
+           "remote_host" : "example.com",
+           "remote_user" : "admin", # or some other account password
+           "remote_password" : "secret_password",
+           "remote_protocol" : "https", # or http
+           "remote_port" : 6984, # or 5984 if http
+
+           # These credentials are used to create the replicated
+           # offline-version of the MICA database and are used by
+           # only the mobile version to initialize the local database.
+           # They can also be used to access the couchbase-mobile
+           # REST api as well.
+
+           "local_database" : parameters["dbname"],
+           "local_username" : "admin", # or whatever other account name you want
+           "local_password" : "secret_password",
+           "local_port" : 5984, # don't change this
+}
