@@ -45,7 +45,6 @@ def second_splash() :
     output += """
 </div>
 <div class="inner3">
-(We're pulling in a lot of dependencies.)
 </div>
 </body>
 </html>
@@ -62,6 +61,7 @@ class Wv(Widget):
         try:
             urllib2.urlopen('http://localhost:10000/serve/favicon.ico')
             self.webview.loadUrl('http://localhost:10000/')
+            #self.webview.setInitialScale(180);
             return
         except urllib2.HTTPError, e:
             print(e.code)

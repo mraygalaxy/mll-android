@@ -111,7 +111,7 @@ android.add_src = %(source.dir)s/Couch.java,%(source.dir)s/MLog.java,%(source.di
 #android.ouya.icon.filename = %(source.dir)s/data/ouya_icon.png
 
 # (str) XML file to include as an intent filters in <activity> tag
-#android.manifest.intent_filters =
+android.manifest.intent_filters = intent_filters.xml
 
 # (list) Android additionnal libraries to copy into libs/armeabi
 android.add_libs_armeabi = %(source.dir)s/jars/libcom_couchbase_touchdb_TDCollateJSON.so,%(source.dir)s/jars/libcom_couchbase_touchdb_RevCollator.so
@@ -124,7 +124,8 @@ android.add_libs_armeabi = %(source.dir)s/jars/libcom_couchbase_touchdb_TDCollat
 #android.wakelock = False
 
 # (list) Android application meta-data to set (key=value format)
-android.meta_data = android:largeHeap="true"
+android.meta_data = android:largeHeap="true",android:com.sec.android.app.multiwindow="true",android:com.sec.android.multiwindow.DEFAULT_SIZE_W=632.0dip,android:com.sec.android.multiwindow.DEFAULT_SIZE_H=598.0dip,android:com.sec.android.multiwindow.MINIMUM_SIZE_W=632.0dip,android:com.sec.android.multiwindow.MINIMUM_SIZE_H=598.0dip
+
 
 # (list) Android library project to add (will be added in the
 # project.properties automatically.)
