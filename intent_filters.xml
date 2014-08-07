@@ -1,0 +1,3 @@
+<intent-filter>
+<category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
+</intent-filter>
