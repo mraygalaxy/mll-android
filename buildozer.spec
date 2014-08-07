@@ -124,7 +124,7 @@ android.add_libs_armeabi = %(source.dir)s/jars/libcom_couchbase_touchdb_TDCollat
 #android.wakelock = False
 
 # (list) Android application meta-data to set (key=value format)
-android.meta_data = android:largeHeap="true",android:com.sec.android.app.multiwindow="true",android:com.sec.android.multiwindow.DEFAULT_SIZE_W=632.0dip,android:com.sec.android.multiwindow.DEFAULT_SIZE_H=598.0dip,android:com.sec.android.multiwindow.MINIMUM_SIZE_W=632.0dip,android:com.sec.android.multiwindow.MINIMUM_SIZE_H=598.0dip
+android.meta_data = android:largeHeap="true",com.sec.android.support.multiwindow="true",com.sec.android.multiwindow.DEFAULT_SIZE_W=632.0dip,com.sec.android.multiwindow.DEFAULT_SIZE_H=598.0dip,com.sec.android.multiwindow.MINIMUM_SIZE_W=632.0dip,com.sec.android.multiwindow.MINIMUM_SIZE_H=598.0dip
 
 
 # (list) Android library project to add (will be added in the
