@@ -333,13 +333,15 @@ public class Couch {
         }
     }
 
-    public void compact(String database_name) throws CouchbaseLiteException {
+    public String compact(String database_name) throws CouchbaseLiteException {
 	if (dbs.get(database_name) != null) {
              System.out.println(TAG + "Compacting database: " + database_name);
 	     Database db = (Database) dbs.get(database_name);
 	     db.compact();
              System.out.println(TAG + "Compaction finished: " + database_name);
 	}
+	
+	return "";
     }
 
     public void drop(String database_name) throws CouchbaseLiteException {
