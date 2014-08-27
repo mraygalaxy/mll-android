@@ -9,6 +9,8 @@
 package org.renpy.android;
 
 import org.renpy.android.Internet;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.wifi.WifiManager;
@@ -92,6 +94,8 @@ import org.codehaus.jackson.type.TypeReference;
 
 public class Couch {
 
+    private static WebView webview = null;
+
     private static final int DEFAULT_LISTEN_PORT = 5984;
 
     public static String TAG = "COUCHBASE: ";
@@ -109,6 +113,12 @@ public class Couch {
     private BroadcastReceiver wifi_receiver;
     private Internet in;
     
+
+    public class MyJavaScriptInterface {
+	    public void someCallback(String jsResult) {
+		System.out.println("JAVASCRIPT: Callback returned: " + jsResult);
+	    }
+    }
 
     public class MySSLSocketFactory extends SSLSocketFactory {
          SSLContext sslContext = SSLContext.getInstance("TLS");
@@ -188,6 +198,12 @@ public class Couch {
         public File getFilesDir() {
             return wrapped.getExternalFilesDir(null);
         }
+    }
+
+    public Couch(WebView wv) {
+        System.out.println(TAG + " Storing reference to webview.");
+	wv.addJavascriptInterface(new MyJavaScriptInterface(), "HTMLOUT");
+        webview = wv;
     }
 
     public Couch(String username, String password, int suggestedListenPort, String cert, Service service) throws IOException {
@@ -418,6 +434,13 @@ public class Couch {
                     int processed = replication.getCompletedChangesCount();
                     int total = replication.getChangesCount();
                     System.out.println(TAG + "Pull Replicator processed " + processed + " / " + total);
+		    float percent = (float) processed / (float) Math.max(1, total) * 100.0;
+                    if (webview == null) {
+     		        System.out.println(TAG + "Webview is null. Cannot update UI.");
+	            } else {
+                        webview.loadUrl("javascript:( function() { pullstat('" + percent + "'); } ) ()");
+                    }
+
                 }
             }
         });
@@ -434,6 +457,12 @@ public class Couch {
                     int processed = replication.getCompletedChangesCount();
                     int total = replication.getChangesCount();
                     System.out.println(TAG + "Push Replicator processed " + processed + " / " + total);
+		    float percent = (float) processed / (float) Math.max(1, total) * 100.0;
+                    if (webview == null) {
+     		        System.out.println(TAG + "Webview is null. Cannot update UI.");
+	            } else {
+                        webview.loadUrl("javascript:( function() { pushstat('" + percent + "'); } ) ()");
+                    }
                 }
             }
         });

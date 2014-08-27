@@ -19,6 +19,7 @@ WebView = autoclass('android.webkit.WebView')
 WebViewClient = autoclass('android.webkit.WebViewClient')
 activity = autoclass('org.renpy.android.PythonActivity').mActivity
 String = autoclass('java.lang.String')
+CouchBase = autoclass("org.renpy.android.Couch")
 
 def second_splash() :
     fh = open(cwd + "splash_template.html", 'r') 
@@ -72,6 +73,7 @@ class Wv(Widget):
     @run_on_ui_thread
     def create_webview(self, *args):
         self.webview = WebView(activity)
+        self.couch = Couch(self.webview)
         self.webview.getSettings().setJavaScriptEnabled(True)
         self.webview.getSettings().setBuiltInZoomControls(True)
         self.webview.getSettings().setAllowUniversalAccessFromFileURLs(True)
