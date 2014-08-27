@@ -304,10 +304,12 @@ public class Couch {
                     database.open();
                     dbs.put(database_name, database);	
 
+                    /*
                     PersistentCookieStore cookieStore = database.getPersistentCookieStore();
                     CouchbaseLiteHttpClientFactory htf = new CouchbaseLiteHttpClientFactory(cookieStore);
                     manager.setDefaultHttpClientFactory(htf);
                     initializeSecurity(htf);
+                    */
                 }
 
 		System.out.println(TAG + "We're ready to go!");
