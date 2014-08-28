@@ -8,7 +8,7 @@ public class MLog {
     private Context _context;
      
     public MLog(Service service){
-        System.out.println("MLog connectivity class initialized.");
+        System.out.println("MLog logging class initialized.");
         this._context = service.getApplicationContext();
     }
  
@@ -23,5 +23,8 @@ public class MLog {
     }
     public void err(String msg){
         System.out.println("MICA ERROR: " + msg);
+    }
+    public void error(String msg) {
+        err(msg);
     }
 }

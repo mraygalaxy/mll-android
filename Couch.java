@@ -17,6 +17,7 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.content.BroadcastReceiver;
 import android.app.Service;
+import android.app.Activity;
 import android.content.res.AssetManager;
 
 import com.couchbase.lite.Context;
@@ -110,6 +111,7 @@ public class Couch {
     private HashMap<String, Object> seeds;
     String cert_path = null;
     Service mService = null;
+    Activity mActivity = null;
     private BroadcastReceiver wifi_receiver;
     private Internet in;
     
@@ -200,13 +202,7 @@ public class Couch {
         }
     }
 
-    public Couch(WebView wv) {
-        System.out.println(TAG + " Storing reference to webview.");
-	wv.addJavascriptInterface(new MyJavaScriptInterface(), "HTMLOUT");
-        webview = wv;
-    }
-
-    public Couch(String username, String password, int suggestedListenPort, String cert, Service service) throws IOException {
+    public Couch(String username, String password, int suggestedListenPort, String cert, Service service, Activity activity) throws IOException {
         try {
             dbs = new HashMap<String, Object>();
             pulls = new HashMap<String, Object>();
@@ -214,6 +210,7 @@ public class Couch {
             seeds = new HashMap<String, Object>();
             urls = new HashMap<String, Object>();
 	    mService = service;
+            mActivity = activity;
             System.out.println(TAG + "Trying to get application context.");
             context = mService.getApplicationContext();
             System.out.println(TAG + "Trying to get build android context.");
@@ -386,6 +383,34 @@ public class Couch {
 	}
     }
 
+    private void updateReplication(Replication.ChangeEvent event, String type) {
+        System.out.println(TAG + type + " Replication status changed: " + event); 
+        Replication replication = event.getSource();
+        if (!replication.isRunning()) {
+            System.out.println(TAG + " replicator " + replication + " is not running");
+        } else {
+            int processed = replication.getCompletedChangesCount();
+            int total = replication.getChangesCount();
+            System.out.println(TAG + type + " Replicator processed " + processed + " / " + total);
+            double percent = (double) processed / (double) Math.max(1, total) * 100.0;
+            if (webview == null) {
+                System.out.println(TAG + "looking up webview");
+                android.view.View v = mActivity.findViewById(1234567);
+                if (v == null) {
+                    System.out.println(TAG + "webview is null. so sad.");
+                } else {
+                    setWebView((WebView) v);
+                }
+            }
+            if (webview == null) {
+                System.out.println(TAG + "Webview is null. Cannot update UI.");
+            } else {
+                webview.loadUrl("javascript:( function() { " + type + "stat('" + percent + "'); } ) ()");
+            }
+
+        }
+    }
+
     public int replicate(String database_name, String server, boolean force) {
 	if (pushes.get(database_name) != null || pulls.get(database_name) != null) {
             System.out.println(TAG + "Database " + database_name + " is already replicating.");
@@ -427,45 +452,14 @@ public class Couch {
         pull.addChangeListener(new Replication.ChangeListener() {
             @Override
             public void changed(Replication.ChangeEvent event) {
-                System.out.println(TAG + "Pull Replication status changed: " + event); 
-                Replication replication = event.getSource();
-                if (!replication.isRunning()) {
-                    System.out.println(TAG + " replicator " + replication + " is not running");
-                }
-                else {
-                    int processed = replication.getCompletedChangesCount();
-                    int total = replication.getChangesCount();
-                    System.out.println(TAG + "Pull Replicator processed " + processed + " / " + total);
-		    float percent = (float) processed / (float) Math.max(1, total) * 100.0;
-                    if (webview == null) {
-     		        System.out.println(TAG + "Webview is null. Cannot update UI.");
-	            } else {
-                        webview.loadUrl("javascript:( function() { pullstat('" + percent + "'); } ) ()");
-                    }
-
-                }
+                updateReplication(event, "pull");
             }
         });
 
         push.addChangeListener(new Replication.ChangeListener() {
             @Override
             public void changed(Replication.ChangeEvent event) {
-                System.out.println(TAG + "Push Replication status changed: " + event); 
-                Replication replication = event.getSource();
-                if (!replication.isRunning()) {
-                    System.out.println(TAG + " replicator " + replication + " is not running");
-                }
-                else {
-                    int processed = replication.getCompletedChangesCount();
-                    int total = replication.getChangesCount();
-                    System.out.println(TAG + "Push Replicator processed " + processed + " / " + total);
-		    float percent = (float) processed / (float) Math.max(1, total) * 100.0;
-                    if (webview == null) {
-     		        System.out.println(TAG + "Webview is null. Cannot update UI.");
-	            } else {
-                        webview.loadUrl("javascript:( function() { pushstat('" + percent + "'); } ) ()");
-                    }
-                }
+                updateReplication(event, "push");
             }
         });
 
@@ -825,5 +819,13 @@ public class Couch {
             return null;
         }
     }
+
+    public void setWebView(WebView wv) {
+        System.out.println(TAG + " Storing reference to webview.");
+	wv.addJavascriptInterface(new MyJavaScriptInterface(), "HTMLOUT");
+        System.out.println(TAG + " Storing reference to webview.");
+        webview = wv;
+    }
+
  
 }

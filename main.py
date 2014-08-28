@@ -13,13 +13,14 @@ import base64
 import re
 import os
 import urllib2
+
+print "Starting up."
                  
 cwd = re.compile(".*\/").search(os.path.realpath(__file__)).group(0)
 WebView = autoclass('android.webkit.WebView')
 WebViewClient = autoclass('android.webkit.WebViewClient')
 activity = autoclass('org.renpy.android.PythonActivity').mActivity
 String = autoclass('java.lang.String')
-CouchBase = autoclass("org.renpy.android.Couch")
 
 def second_splash() :
     fh = open(cwd + "splash_template.html", 'r') 
@@ -62,23 +63,26 @@ class Wv(Widget):
         try:
             urllib2.urlopen('http://localhost:10000/serve/favicon.ico')
             self.webview.loadUrl('http://localhost:10000/')
+            print("Storing webview to couch static variable.")
             #self.webview.setInitialScale(180);
             return
         except urllib2.HTTPError, e:
-            print(e.code)
+            print(str(e.code))
         except urllib2.URLError, e:
-            print(e.args)
+            print(str(e.args))
         Clock.schedule_once(self.go, 1)
 
     @run_on_ui_thread
     def create_webview(self, *args):
         self.webview = WebView(activity)
-        self.couch = Couch(self.webview)
         self.webview.getSettings().setJavaScriptEnabled(True)
         self.webview.getSettings().setBuiltInZoomControls(True)
         self.webview.getSettings().setAllowUniversalAccessFromFileURLs(True)
         wvc = WebViewClient();
         self.webview.setWebViewClient(wvc);
+        print ("Trying to set webview ID")
+        self.webview.setId(1234567)
+        print ("Successfully set webview ID")
         #WebView.setWebContentsDebuggingEnabled(True);
         activity.setContentView(self.webview)
         self.webview.loadData(String(second_splash()), "text/html", "utf-8");
