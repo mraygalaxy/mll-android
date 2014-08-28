@@ -9,15 +9,13 @@
 package org.renpy.android;
 
 import org.renpy.android.Internet;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
+import org.renpy.android.WebUpdate;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.content.BroadcastReceiver;
 import android.app.Service;
-import android.app.Activity;
 import android.content.res.AssetManager;
 
 import com.couchbase.lite.Context;
@@ -95,8 +93,6 @@ import org.codehaus.jackson.type.TypeReference;
 
 public class Couch {
 
-    private static WebView webview = null;
-
     private static final int DEFAULT_LISTEN_PORT = 5984;
 
     public static String TAG = "COUCHBASE: ";
@@ -111,9 +107,9 @@ public class Couch {
     private HashMap<String, Object> seeds;
     String cert_path = null;
     Service mService = null;
-    Activity mActivity = null;
     private BroadcastReceiver wifi_receiver;
     private Internet in;
+    private WebUpdate wu;
     
 
     public class MyJavaScriptInterface {
@@ -202,7 +198,7 @@ public class Couch {
         }
     }
 
-    public Couch(String username, String password, int suggestedListenPort, String cert, Service service, Activity activity) throws IOException {
+    public Couch(String username, String password, int suggestedListenPort, String cert, Service service) throws IOException {
         try {
             dbs = new HashMap<String, Object>();
             pulls = new HashMap<String, Object>();
@@ -210,7 +206,6 @@ public class Couch {
             seeds = new HashMap<String, Object>();
             urls = new HashMap<String, Object>();
 	    mService = service;
-            mActivity = activity;
             System.out.println(TAG + "Trying to get application context.");
             context = mService.getApplicationContext();
             System.out.println(TAG + "Trying to get build android context.");
@@ -276,6 +271,7 @@ public class Couch {
             mService.registerReceiver(wifi_receiver, new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION));
 
 	    in = new Internet(mService);
+            wu = new WebUpdate(mService);
 
         } catch (Exception e) {
 		dumpError(e);
@@ -393,20 +389,8 @@ public class Couch {
             int total = replication.getChangesCount();
             System.out.println(TAG + type + " Replicator processed " + processed + " / " + total);
             double percent = (double) processed / (double) Math.max(1, total) * 100.0;
-            if (webview == null) {
-                System.out.println(TAG + "looking up webview");
-                android.view.View v = mActivity.findViewById(1234567);
-                if (v == null) {
-                    System.out.println(TAG + "webview is null. so sad.");
-                } else {
-                    setWebView((WebView) v);
-                }
-            }
-            if (webview == null) {
-                System.out.println(TAG + "Webview is null. Cannot update UI.");
-            } else {
-                webview.loadUrl("javascript:( function() { " + type + "stat('" + percent + "'); } ) ()");
-            }
+            //    webview.loadUrl();
+            wu.send("javascript:( function() { " + type + "stat('" + percent + "'); } ) ()");
 
         }
     }
@@ -819,13 +803,4 @@ public class Couch {
             return null;
         }
     }
-
-    public void setWebView(WebView wv) {
-        System.out.println(TAG + " Storing reference to webview.");
-	wv.addJavascriptInterface(new MyJavaScriptInterface(), "HTMLOUT");
-        System.out.println(TAG + " Storing reference to webview.");
-        webview = wv;
-    }
-
- 
 }

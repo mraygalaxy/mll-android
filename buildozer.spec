@@ -32,7 +32,8 @@ version.filename = %(source.dir)s/main.py
 # version = 1.2.0
 
 # (list) Application requirements
-requirements = setuptools==1.2,pyopenssl,openssl,sqlite3,sqlalchemy==0.6.9,twisted,kivy,cjklib,webob,couchdb
+#requirements = setuptools==1.2,pyopenssl,openssl,sqlite3,sqlalchemy==0.6.9,twisted,kivy,cjklib,webob,couchdb
+requirements = kivy
 
 # (list) Garden requirements
 #garden_requirements =
@@ -79,7 +80,7 @@ android.minapi = 16
 #android.sdk_path =
 
 # (str) python-for-android git clone directory (if empty, it will be automatically cloned from github)
-#android.p4a_dir =
+android.p4a_dir = %(source.dir)s/../../../../python-for-android 
 
 # (list) python-for-android whitelist
 #android.p4a_whitelist =
@@ -93,11 +94,11 @@ android.minapi = 16
 # OUYA-ODK/libs/*.jar
 
 #android.add_jars = %(source.dir)s/jars/couchbase-lite-java-core-0.0.0-396.jar,%(source.dir)s/jars/couchbase-lite-android-0.0.0-396.jar,%(source.dir)s/jars/couchbase-lite-java-javascript-0.0.0-396.jar,%(source.dir)s/jars/couchbase-lite-java-listener-0.0.0-396.jar,%(source.dir)s/jars/rhino-1.7R3.jar,%(source.dir)s/jars/commons-io-2.0.1.jar,%(source.dir)s/jars/jackson-core-asl-1.9.2.jar,%(source.dir)s/jars/jackson-mapper-asl-1.9.2.jar,%(source.dir)s/jars/servlet-2-3.jar,%(source.dir)s/jars/webserver-2-3.jar
-android.add_jars = %(source.dir)s/jars/couchbase-lite-java-core-custom.jar,%(source.dir)s/jars/couchbase-lite-android-custom.jar,%(source.dir)s/jars/couchbase-lite-java-javascript-0.0.0-396.jar,%(source.dir)s/jars/couchbase-lite-java-listener-0.0.0-396.jar,%(source.dir)s/jars/rhino-1.7R3.jar,%(source.dir)s/jars/commons-io-2.0.1.jar,%(source.dir)s/jars/jackson-core-asl-1.9.2.jar,%(source.dir)s/jars/jackson-mapper-asl-1.9.2.jar,%(source.dir)s/jars/servlet-2-3.jar,%(source.dir)s/jars/webserver-2-3.jar
+android.add_jars = %(source.dir)s/jars/couchbase-lite-java-core-custom.jar,%(source.dir)s/jars/couchbase-lite-android-custom.jar,%(source.dir)s/jars/couchbase-lite-java-javascript-0.0.0-396.jar,%(source.dir)s/jars/couchbase-lite-java-listener-0.0.0-396.jar,%(source.dir)s/jars/rhino-1.7R3.jar,%(source.dir)s/jars/commons-io-2.0.1.jar,%(source.dir)s/jars/jackson-core-asl-1.9.2.jar,%(source.dir)s/jars/jackson-mapper-asl-1.9.2.jar,%(source.dir)s/jars/servlet-2-3.jar,%(source.dir)s/jars/webserver-2-3.jar,%(source.dir)s/jars/android-support-v4.jar
 
 # (list) List of Java files to add to the android project (can be java or a
 # directory containing the files)
-android.add_src = %(source.dir)s/Couch.java,%(source.dir)s/MLog.java,%(source.dir)s/Internet.java
+android.add_src = %(source.dir)s/WebUpdate.java,%(source.dir)s/Couch.java,%(source.dir)s/MLog.java,%(source.dir)s/Internet.java
 
 # (str) python-for-android branch to use, if not master, useful to try
 # not yet merged features.

@@ -7,6 +7,7 @@ from kivy.lang import Builder
 from kivy.utils import platform
 from kivy.uix.widget import Widget
 from kivy.clock import Clock
+from kivy.lib import osc
 from jnius import autoclass
 from android.runnable import run_on_ui_thread 
 import base64
@@ -20,7 +21,12 @@ cwd = re.compile(".*\/").search(os.path.realpath(__file__)).group(0)
 WebView = autoclass('android.webkit.WebView')
 WebViewClient = autoclass('android.webkit.WebViewClient')
 activity = autoclass('org.renpy.android.PythonActivity').mActivity
+WebUpdate = autoclass('org.renpy.android.WebUpdate')
 String = autoclass('java.lang.String')
+wu = False
+
+def some_api_callback(message, *args) :
+    print("got a message " + message)
 
 def second_splash() :
     fh = open(cwd + "splash_template.html", 'r') 
@@ -63,7 +69,9 @@ class Wv(Widget):
         try:
             urllib2.urlopen('http://localhost:10000/serve/favicon.ico')
             self.webview.loadUrl('http://localhost:10000/')
-            print("Storing webview to couch static variable.")
+            print("Storing starting localbroadcast receiver for web updates")
+            wu = WebUpdate(activity, self.webview)
+            print ("WebUpdate initialized")
             #self.webview.setInitialScale(180);
             return
         except urllib2.HTTPError, e:
@@ -80,9 +88,6 @@ class Wv(Widget):
         self.webview.getSettings().setAllowUniversalAccessFromFileURLs(True)
         wvc = WebViewClient();
         self.webview.setWebViewClient(wvc);
-        print ("Trying to set webview ID")
-        self.webview.setId(1234567)
-        print ("Successfully set webview ID")
         #WebView.setWebContentsDebuggingEnabled(True);
         activity.setContentView(self.webview)
         self.webview.loadData(String(second_splash()), "text/html", "utf-8");

@@ -8,7 +8,6 @@ MLog = autoclass("org.renpy.android.MLog")
 PythonService = autoclass("org.renpy.android.PythonService")
 log = MLog(PythonService.mService)
 String = autoclass('java.lang.String')
-activity = autoclass('org.renpy.android.PythonActivity').mActivity
 
 log.debug(String("Loading initial parameters"))
 
@@ -28,7 +27,7 @@ log.debug(String("Loading mica services"))
 if __name__ == '__main__':
     mobile_internet = MobileInternet(PythonService.mService)
 
-    couch = CouchBase(String(app["local_username"]), String(app["local_password"]), app["local_port"], String(cert), PythonService.mService, activity)
+    couch = CouchBase(String(app["local_username"]), String(app["local_password"]), app["local_port"], String(cert), PythonService.mService)
 
     port = couch.start(String(app["local_database"]))
     
