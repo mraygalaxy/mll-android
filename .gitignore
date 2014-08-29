@@ -5,3 +5,4 @@ service/mica
 bin
 service/.cache
 *.swp
+*.swo
