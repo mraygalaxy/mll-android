@@ -1,15 +1,15 @@
 package org.renpy.android;
 
-import android.app.Service;
+import android.app.Activity;
 import android.content.Context;
  
 public class MLog {
      
     private Context _context;
      
-    public MLog(Service service){
+    public MLog(Activity activity){
         System.out.println("MLog logging class initialized.");
-        this._context = service.getApplicationContext();
+        this._context = activity.getApplicationContext();
     }
  
     public void debug(String msg){

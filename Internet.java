@@ -1,6 +1,6 @@
 package org.renpy.android;
 
-import android.app.Service;
+import android.app.Activity;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -9,9 +9,9 @@ public class Internet {
      
     private Context _context;
      
-    public Internet(Service service){
+    public Internet(Activity activity){
         System.out.println("INTERNET: Internet connectivity class initialized.");
-        this._context = service.getApplicationContext();
+        this._context = activity.getApplicationContext();
     }
  
     public String connected(){

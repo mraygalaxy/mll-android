@@ -9,13 +9,13 @@
 package org.renpy.android;
 
 import org.renpy.android.Internet;
-import org.renpy.android.WebUpdate;
+import android.app.Activity;
+import android.webkit.WebView;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.content.BroadcastReceiver;
-import android.app.Service;
 import android.content.res.AssetManager;
 
 import com.couchbase.lite.Context;
@@ -106,18 +106,22 @@ public class Couch {
     private HashMap<String, Object> urls;
     private HashMap<String, Object> seeds;
     String cert_path = null;
-    Service mService = null;
     private BroadcastReceiver wifi_receiver;
     private Internet in;
-    private WebUpdate wu;
+    Activity mActivity = null;
+    WebView webview = null;
     
-
     public class MyJavaScriptInterface {
 	    public void someCallback(String jsResult) {
-		System.out.println("JAVASCRIPT: Callback returned: " + jsResult);
+		System.out.println(TAG + "JAVASCRIPT: Callback returned: " + jsResult);
 	    }
     }
 
+    public void setWebView(WebView wv) {
+        System.out.println(TAG + "Storing reference to webview.");
+        webview = wv;
+        wv.addJavascriptInterface(new MyJavaScriptInterface(), "HTMLOUT");
+    }
     public class MySSLSocketFactory extends SSLSocketFactory {
          SSLContext sslContext = SSLContext.getInstance("TLS");
 
@@ -162,7 +166,7 @@ public class Couch {
     }
  
     private void initializeSecurity(CouchbaseLiteHttpClientFactory factory) throws IOException, CertificateException, KeyStoreException, NoSuchAlgorithmException, KeyManagementException, InterruptedException, UnrecoverableKeyException {
-        AssetManager am = mService.getAssets();
+        AssetManager am = mActivity.getAssets();
         InputStream is = IOUtils.toInputStream(cert_path, "UTF-8");
         // Load CAs from an InputStream
         CertificateFactory cf = CertificateFactory.getInstance("X.509");
@@ -198,16 +202,16 @@ public class Couch {
         }
     }
 
-    public Couch(String username, String password, int suggestedListenPort, String cert, Service service) throws IOException {
+    public Couch(String username, String password, int suggestedListenPort, String cert, Activity activity) throws IOException {
         try {
             dbs = new HashMap<String, Object>();
             pulls = new HashMap<String, Object>();
             pushes = new HashMap<String, Object>();
             seeds = new HashMap<String, Object>();
             urls = new HashMap<String, Object>();
-	    mService = service;
+	    mActivity = activity;
             System.out.println(TAG + "Trying to get application context.");
-            context = mService.getApplicationContext();
+            context = mActivity.getApplicationContext();
             System.out.println(TAG + "Trying to get build android context.");
             MicaContext mc = new MicaContext(context);
             System.out.println(TAG + "Trying to make manager.");
@@ -268,10 +272,9 @@ public class Couch {
 			}
 		};
 
-            mService.registerReceiver(wifi_receiver, new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION));
+            mActivity.registerReceiver(wifi_receiver, new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION));
 
-	    in = new Internet(mService);
-            wu = new WebUpdate(mService);
+	    in = new Internet(mActivity);
 
         } catch (Exception e) {
 		dumpError(e);
@@ -379,7 +382,7 @@ public class Couch {
 	}
     }
 
-    private void updateReplication(Replication.ChangeEvent event, String type) {
+    private void updateReplication(Replication.ChangeEvent event, final String type) {
         System.out.println(TAG + type + " Replication status changed: " + event); 
         Replication replication = event.getSource();
         if (!replication.isRunning()) {
@@ -388,10 +391,20 @@ public class Couch {
             int processed = replication.getCompletedChangesCount();
             int total = replication.getChangesCount();
             System.out.println(TAG + type + " Replicator processed " + processed + " / " + total);
-            double percent = (double) processed / (double) Math.max(1, total) * 100.0;
-            //    webview.loadUrl();
-            wu.send("javascript:( function() { " + type + "stat('" + percent + "'); } ) ()");
-
+            final double percent = (double) processed / (double) Math.max(1, total) * 100.0;
+            if (webview != null) {
+                mActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        System.out.println(TAG + type + " updating webview on UI thread.");
+                        webview.loadUrl("javascript: " + type + "stat('" + percent + "');");
+                        System.out.println(TAG + type + " update on thread done.");
+                    }
+                });
+                System.out.println(TAG + type + " webview update sent.");
+            } else {
+                System.out.println(TAG + type + " webview not alive yet.");
+            }
         }
     }
 

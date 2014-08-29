@@ -33,7 +33,7 @@ version.filename = %(source.dir)s/main.py
 
 # (list) Application requirements
 #requirements = setuptools==1.2,pyopenssl,openssl,sqlite3,sqlalchemy==0.6.9,twisted,kivy,cjklib,webob,couchdb
-requirements = kivy
+requirements = pyopenssl,openssl,sqlite3,twisted,kivy
 
 # (list) Garden requirements
 #garden_requirements =
@@ -98,7 +98,7 @@ android.add_jars = %(source.dir)s/jars/couchbase-lite-java-core-custom.jar,%(sou
 
 # (list) List of Java files to add to the android project (can be java or a
 # directory containing the files)
-android.add_src = %(source.dir)s/WebUpdate.java,%(source.dir)s/Couch.java,%(source.dir)s/MLog.java,%(source.dir)s/Internet.java
+android.add_src = %(source.dir)s/Couch.java,%(source.dir)s/MLog.java,%(source.dir)s/Internet.java
 
 # (str) python-for-android branch to use, if not master, useful to try
 # not yet merged features.
