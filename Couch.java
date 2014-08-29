@@ -390,16 +390,18 @@ public class Couch {
             int processed = replication.getCompletedChangesCount();
             int total = replication.getChangesCount();
             Log.d(TAG, type + " Replicator processed " + processed + " / " + total);
-            final double percent = (double) processed / (double) Math.max(1, total) * 100.0;
-            if (webview != null) {
-                mActivity.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        webview.loadUrl("javascript: " + type + "stat('" + String.format( "%.1f", percent ) + "');");
-                    }
-                });
-            } else {
-                Log.d(TAG, type + " webview not alive yet.");
+            if (total != 0) {
+                final double percent = (double) processed / (double) Math.max(1, total) * 100.0;
+                if (webview != null) {
+                    mActivity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            webview.loadUrl("javascript: " + type + "stat('" + String.format( "%.1f", percent ) + "');");
+                        }
+                    });
+                } else {
+                    Log.d(TAG, type + " webview not alive yet.");
+                }
             }
         }
     }
