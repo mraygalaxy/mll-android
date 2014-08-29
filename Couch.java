@@ -52,6 +52,9 @@ import com.couchbase.lite.Mapper;
 import com.couchbase.lite.Reducer;
 import com.couchbase.lite.View.TDViewCollation;
 
+import java.io.OutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PushbackInputStream;
@@ -564,6 +567,42 @@ public class Couch {
             result = IOUtils.toByteArray(is);
             //Log.d(TAG, "Got " + result.length + " bytes.");
             return result;
+        } catch(Exception e) {
+            dumpError(e);
+            return null;
+        }
+    }
+
+    public String get_attachment_to_path(String dbname, String name, String filename, String path) throws IOException {
+        try {
+            Database database = (Database) dbs.get(dbname);
+            Document doc = database.getExistingDocument(name);
+            Log.d(TAG, "Looking up attachment from document: " + name + " named " + filename);
+            if (doc == null) {
+                Log.e(TAG, "No such document: " + name + ". Cannot get attachment to send to path.");
+                return null;
+            } 
+
+            Revision rev = doc.getCurrentRevision();
+            Attachment att = rev.getAttachment(filename);
+            if (att == null) {
+            	RevisionInternal irev = database.getDocumentWithIDAndRev(name, rev.getId(), EnumSet.noneOf(TDContentOptions.class));
+            	long seq = irev.getSequence();
+            	att = database.getAttachmentForSequence(seq, filename);
+            	if (att == null) {
+            		Log.e(TAG, "Document: " + name + " has no such attachment to send to path: " + filename);
+            		return null;
+            	}
+                Log.w(TAG, "Document: " + name + " workaround succeded for attachment to send to path: " + filename);
+            }
+
+            InputStream is = decompressStream(att.getContent());
+            OutputStream os = new FileOutputStream(path);
+            IOUtils.copy(is, os);
+            is.close();
+            os.close();
+            
+            return "success";
         } catch(Exception e) {
             dumpError(e);
             return null;
