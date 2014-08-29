@@ -9,6 +9,7 @@
 package org.renpy.android;
 
 import org.renpy.android.Internet;
+import android.util.Log;
 import android.app.Activity;
 import android.webkit.WebView;
 import android.content.Intent;
@@ -43,7 +44,6 @@ import com.couchbase.lite.support.CouchbaseLiteHttpClientFactory;
 import com.couchbase.lite.support.HttpClientFactory;
 import com.couchbase.lite.support.PersistentCookieStore;
 import com.couchbase.lite.router.Router;
-import com.couchbase.lite.util.Log;
 import com.couchbase.lite.Document;
 import com.couchbase.lite.UnsavedRevision;
 import com.couchbase.lite.internal.RevisionInternal;
@@ -95,7 +95,7 @@ public class Couch {
 
     private static final int DEFAULT_LISTEN_PORT = 5984;
 
-    public static String TAG = "COUCHBASE: ";
+    public static String TAG = "COUCHBASE";
     private Manager manager;
     private android.content.Context context;
     private LiteListener listener = null;
@@ -113,12 +113,12 @@ public class Couch {
     
     public class MyJavaScriptInterface {
 	    public void someCallback(String jsResult) {
-		System.out.println(TAG + "JAVASCRIPT: Callback returned: " + jsResult);
+		Log.d(TAG, "JAVASCRIPT: Callback returned: " + jsResult);
 	    }
     }
 
     public void setWebView(WebView wv) {
-        System.out.println(TAG + "Storing reference to webview.");
+        Log.d(TAG, "Storing reference to webview.");
         webview = wv;
         wv.addJavascriptInterface(new MyJavaScriptInterface(), "HTMLOUT");
     }
@@ -210,32 +210,32 @@ public class Couch {
             seeds = new HashMap<String, Object>();
             urls = new HashMap<String, Object>();
 	    mActivity = activity;
-            System.out.println(TAG + "Trying to get application context.");
+            Log.d(TAG, "Trying to get application context.");
             context = mActivity.getApplicationContext();
-            System.out.println(TAG + "Trying to get build android context.");
+            Log.d(TAG, "Trying to get build android context.");
             MicaContext mc = new MicaContext(context);
-            System.out.println(TAG + "Trying to make manager.");
-            Manager.enableLogging(Log.TAG, Log.VERBOSE);
-            Manager.enableLogging(Log.TAG_SYNC, Log.VERBOSE);
-            Manager.enableLogging(Log.TAG_QUERY, Log.VERBOSE);
-            Manager.enableLogging(Log.TAG_VIEW, Log.VERBOSE);
-            Manager.enableLogging(Log.TAG_DATABASE, Log.VERBOSE);
-            Manager.enableLogging(Log.TAG_REMOTE_REQUEST, Log.VERBOSE);
-            Manager.enableLogging(Log.TAG_ROUTER, Log.VERBOSE);
-            Manager.enableLogging(Log.TAG_LISTENER, Log.VERBOSE);
-            Manager.enableLogging(Log.TAG_MULTI_STREAM_WRITER, Log.VERBOSE);
-            Manager.enableLogging(Log.TAG_BLOB_STORE, Log.VERBOSE);
+            Log.d(TAG, "Trying to make manager.");
+            //Manager.enableLogging(com.couchbase.lite.util.Log.TAG, com.couchbase.lite.util.Log.VERBOSE);
+            //Manager.enableLogging(com.couchbase.lite.util.Log.TAG_SYNC, com.couchbase.lite.util.Log.VERBOSE);
+            //Manager.enableLogging(com.couchbase.lite.util.Log.TAG_QUERY, com.couchbase.lite.util.Log.VERBOSE);
+            Manager.enableLogging(com.couchbase.lite.util.Log.TAG_VIEW, com.couchbase.lite.util.Log.VERBOSE);
+            //Manager.enableLogging(com.couchbase.lite.util.Log.TAG_DATABASE, com.couchbase.lite.util.Log.VERBOSE);
+            //Manager.enableLogging(com.couchbase.lite.util.Log.TAG_REMOTE_REQUEST, com.couchbase.lite.util.Log.VERBOSE);
+            Manager.enableLogging(com.couchbase.lite.util.Log.TAG_ROUTER, com.couchbase.lite.util.Log.VERBOSE);
+            Manager.enableLogging(com.couchbase.lite.util.Log.TAG_LISTENER, com.couchbase.lite.util.Log.VERBOSE);
+            //Manager.enableLogging(com.couchbase.lite.util.Log.TAG_MULTI_STREAM_WRITER, com.couchbase.lite.util.Log.VERBOSE);
+            Manager.enableLogging(com.couchbase.lite.util.Log.TAG_BLOB_STORE, com.couchbase.lite.util.Log.VERBOSE);
             manager = new Manager(mc, Manager.DEFAULT_OPTIONS);
-            System.out.println(TAG + "Trying to set compiler.");
+            Log.d(TAG, "Trying to set compiler.");
             View.setCompiler(new JavaScriptViewCompiler());
-            System.out.println(TAG + "Manager stores database here: " + manager.getDirectory());
-            System.out.println(TAG + "Listing databases.");
+            Log.d(TAG, "Manager stores database here: " + manager.getDirectory());
+            Log.d(TAG, "Listing databases.");
             for (String dbname : manager.getAllDatabaseNames()) {
-                System.out.println(TAG + "Manager has databases: " + dbname);
+                Log.d(TAG, "Manager has databases: " + dbname);
             }
-            System.out.println(TAG + "Finished listing databases.");
+            Log.d(TAG, "Finished listing databases.");
 
-	    System.out.println(TAG + "Trying to start listener on port: " + suggestedListenPort);
+	    Log.d(TAG, "Trying to start listener on port: " + suggestedListenPort);
 	    Credentials creds = new Credentials(username, password);
 	    listener = new LiteListener(manager, suggestedListenPort, creds);
 	    listenerThread = new Thread(listener);
@@ -251,21 +251,21 @@ public class Couch {
 				 
 				  switch(extraWifiState){
 					  case WifiManager.WIFI_STATE_DISABLED:
-					    System.out.println(TAG + "Wifi disabled.");
+					    Log.d(TAG, "Wifi disabled.");
 					    changeAllReplications(false);
 					   break;
 					  case WifiManager.WIFI_STATE_DISABLING:
-					    System.out.println(TAG + "Wifi disabling.");
+					    Log.d(TAG, "Wifi disabling.");
 					   break;
 					  case WifiManager.WIFI_STATE_ENABLED:
-					    System.out.println(TAG + "Wifi enabled.");
+					    Log.d(TAG, "Wifi enabled.");
 					    changeAllReplications(true);
 					   break;
 					  case WifiManager.WIFI_STATE_ENABLING:
-					    System.out.println(TAG + "Wifi enabling.");
+					    Log.d(TAG, "Wifi enabling.");
 					   break;
 					  case WifiManager.WIFI_STATE_UNKNOWN:
-					    System.out.println(TAG + "Wifi unknown.");
+					    Log.d(TAG, "Wifi unknown.");
 					   break;
 				  }
 	 
@@ -290,14 +290,14 @@ public class Couch {
 			String url = (String) pairs.getValue();
 			
 			if (start) {
-			    System.out.println(TAG + "Starting replication for DB: " + database_name);
+			    Log.d(TAG, "Starting replication for DB: " + database_name);
 		            replicate(database_name, url, true);
 			} else {
-			    System.out.println(TAG + "Stopping replication for DB: " + database_name);
+			    Log.d(TAG, "Stopping replication for DB: " + database_name);
 			    stop_replication(database_name);
 			}
 		    }
-		    System.out.println(TAG + "Change all replications exiting.");
+		    Log.d(TAG, "Change all replications exiting.");
 		    
         } catch (Exception e) {
 		dumpError(e);
@@ -311,7 +311,7 @@ public class Couch {
     public int start(String database_name) throws IOException, CouchbaseLiteException {
         try {
                 if (dbs.get(database_name) == null) {
-                    System.out.println(TAG + "Trying to open database: " + database_name);
+                    Log.d(TAG, "Trying to open database: " + database_name);
                     Database database = manager.getDatabase(database_name);
                     database.open();
                     dbs.put(database_name, database);	
@@ -324,7 +324,7 @@ public class Couch {
                     */
                 }
 
-		System.out.println(TAG + "We're ready to go!");
+		Log.d(TAG, "We're ready to go!");
 		return listener.getListenPort();
         } catch (Exception e) {
 		dumpError(e);
@@ -337,22 +337,22 @@ public class Couch {
 	if (pushes.get(database_name) != null) {
 	     Replication push = (Replication) pushes.remove(database_name);
 	     push.stop();
-             System.out.println(TAG + "Stopped push replication.");
+             Log.d(TAG, "Stopped push replication.");
         }
 
 	if (pulls.get(database_name) != null) {
 	     Replication pull = (Replication) pulls.remove(database_name);
 	     pull.stop();
-             System.out.println(TAG + "Stopped pull replication.");
+             Log.d(TAG, "Stopped pull replication.");
         }
     }
 
     public String compact(String database_name) throws CouchbaseLiteException {
 	if (dbs.get(database_name) != null) {
-             System.out.println(TAG + "Compacting database: " + database_name);
+             Log.d(TAG, "Compacting database: " + database_name);
 	     Database db = (Database) dbs.get(database_name);
 	     db.compact();
-             System.out.println(TAG + "Compaction finished: " + database_name);
+             Log.d(TAG, "Compaction finished: " + database_name);
 	}
 	
 	return "";
@@ -364,7 +364,7 @@ public class Couch {
 	if (dbs.get(database_name) != null) {
 	     Database db = (Database) dbs.remove(database_name);
 	     db.delete();
-             System.out.println(TAG + "Deleted database: " + database_name);
+             Log.d(TAG, "Deleted database: " + database_name);
 	}
     }
 
@@ -378,49 +378,45 @@ public class Couch {
 	     * At least, I couldn't find it in the documentation.
 	     */
 	     //db.close();
-             System.out.println(TAG + "Closed database: " + database_name);
+             Log.d(TAG, "Closed database: " + database_name);
 	}
     }
 
     private void updateReplication(Replication.ChangeEvent event, final String type) {
-        System.out.println(TAG + type + " Replication status changed: " + event); 
         Replication replication = event.getSource();
         if (!replication.isRunning()) {
-            System.out.println(TAG + " replicator " + replication + " is not running");
+            Log.d(TAG, " replicator " + replication + " is not running");
         } else {
             int processed = replication.getCompletedChangesCount();
             int total = replication.getChangesCount();
-            System.out.println(TAG + type + " Replicator processed " + processed + " / " + total);
+            Log.d(TAG, type + " Replicator processed " + processed + " / " + total);
             final double percent = (double) processed / (double) Math.max(1, total) * 100.0;
             if (webview != null) {
                 mActivity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        System.out.println(TAG + type + " updating webview on UI thread.");
-                        webview.loadUrl("javascript: " + type + "stat('" + percent + "');");
-                        System.out.println(TAG + type + " update on thread done.");
+                        webview.loadUrl("javascript: " + type + "stat('" + String.format( "%.1f", percent ) + "');");
                     }
                 });
-                System.out.println(TAG + type + " webview update sent.");
             } else {
-                System.out.println(TAG + type + " webview not alive yet.");
+                Log.d(TAG, type + " webview not alive yet.");
             }
         }
     }
 
     public int replicate(String database_name, String server, boolean force) {
 	if (pushes.get(database_name) != null || pulls.get(database_name) != null) {
-            System.out.println(TAG + "Database " + database_name + " is already replicating.");
+            Log.d(TAG, "Database " + database_name + " is already replicating.");
 	    return 0;
 	}
         URL url;
         try {
             url = new URL(server + "/" + database_name);
         } catch (MalformedURLException e) {
-            System.out.println(TAG + "Your replication URL is not good: " + e);
+            Log.d(TAG, "Your replication URL is not good: " + e);
             return -1;
         }
-        System.out.println(TAG + "creating replicator");
+        Log.d(TAG, "creating replicator");
 
 	if (urls.get(database_name) == null) {
 		urls.put(database_name, server);
@@ -429,12 +425,12 @@ public class Couch {
 	String conn = in.connected();
 	
 	if (in.connected() == "expensive") {
-		System.out.println(TAG + "Not going to start replication on 3G =(");
+		Log.d(TAG, "Not going to start replication on 3G =(");
 		return 0;
 	} else if(force || conn == "online") {
-		System.out.println(TAG + "Starting replication!");
+		Log.d(TAG, "Starting replication!");
 	} else {
-		System.out.println(TAG + "No internet. Not starting replication.");
+		Log.d(TAG, "No internet. Not starting replication.");
 		return 0;
         }
 
@@ -444,7 +440,7 @@ public class Couch {
         pull.setContinuous(true);
         push.setContinuous(true);
 
-        System.out.println(TAG + "Setting change listeners for replication");
+        Log.d(TAG, "Setting change listeners for replication");
 
         pull.addChangeListener(new Replication.ChangeListener() {
             @Override
@@ -469,12 +465,11 @@ public class Couch {
     }
 
     private void dumpError(Exception e) {
-	System.out.println(TAG + "Error in Mica: " + e);
-	System.out.println(TAG + e.getMessage());
-	System.out.println(TAG + e.getLocalizedMessage());
-	System.out.println(TAG + e.getCause());
-	System.out.println(TAG + Arrays.toString(e.getStackTrace()));
-	e.printStackTrace();
+	Log.e(TAG, "Error in Mica: " + e);
+	Log.e(TAG, e.getMessage());
+	Log.e(TAG, e.getLocalizedMessage());
+	Log.e(TAG, "" + e.getCause());
+	Log.e(TAG, Arrays.toString(e.getStackTrace()));
     }
 
     private Map<String,Object> toJava(String json) throws IOException {
@@ -490,10 +485,10 @@ public class Couch {
 	    
             Database database = (Database) dbs.get(dbname);
             Document document = database.getDocument(name);
-	    System.out.println(TAG + "Want to put to key " + name + " with a length: " + json.length());
+	    Log.d(TAG, "Want to put to key " + name + " with a length: " + json.length());
             Map<String, Object> properties = toJava(json);
 	    document.putProperties(properties);
-	    System.out.println(TAG + "Revision committed for key " + name);
+	    Log.d(TAG, "Revision committed for key " + name);
             return "";
         } catch(Exception e) {
             dumpError(e);
@@ -536,7 +531,7 @@ public class Couch {
          pb.read( signature );
          pb.unread( signature );
          if( signature[ 0 ] == (byte) 0x1f && signature[ 1 ] == (byte) 0x8b )  {
-            System.out.println(TAG + "Attachment is compressed. Need to decompress it first.");
+            Log.d(TAG, "Attachment is compressed. Need to decompress it first.");
            return new GZIPInputStream( pb );
          } else {
            return pb;
@@ -547,16 +542,16 @@ public class Couch {
         try {
             Database database = (Database) dbs.get(dbname);
             Document doc = database.getExistingDocument(name);
-            //System.out.println(TAG + "Looking up attachment from document: " + name + " named " + filename);
+            //Log.d(TAG, "Looking up attachment from document: " + name + " named " + filename);
             if (doc == null) {
-                System.out.println(TAG + "No such document: " + name + ". Cannot get attachment.");
+                Log.d(TAG, "No such document: " + name + ". Cannot get attachment.");
                 return null;
             } 
 
             Revision rev = doc.getCurrentRevision();
             Attachment att = rev.getAttachment(filename);
             if (att == null) {
-                System.out.println(TAG + "Document: " + name + " has no such attachment: " + filename);
+                Log.d(TAG, "Document: " + name + " has no such attachment: " + filename);
             }
 
             InputStream is = decompressStream(att.getContent());
@@ -565,7 +560,7 @@ public class Couch {
             /* couchdb is lying. use magic number method later. I filed a bug on github. No response yet. */
 
             result = IOUtils.toByteArray(is);
-            //System.out.println(TAG + "Got " + result.length + " bytes.");
+            //Log.d(TAG, "Got " + result.length + " bytes.");
             return result;
         } catch(Exception e) {
             dumpError(e);
@@ -588,7 +583,7 @@ public class Couch {
     }
 
     private View compileView(Database db, String viewName, Map<String,Object> viewProps) {
-        System.out.println(TAG + "Recompiling view.");
+        Log.d(TAG, "Recompiling view.");
         String language = (String)viewProps.get("language");
         if(language == null) {
             language = "javascript";
@@ -599,27 +594,27 @@ public class Couch {
         }
         Mapper mapBlock = View.getCompiler().compileMap(mapSource, language);
         if(mapBlock == null) {
-            Log.w(Log.TAG_ROUTER, "View %s has unknown map function: %s", viewName, mapSource);
+            Log.w(TAG, "View " + viewName + " has unknown map function: " + mapSource);
             return null;
         }
         String reduceSource = (String)viewProps.get("reduce");
         Reducer reduceBlock = null;
         if(reduceSource != null) {
-            System.out.println(TAG + "Recompiling view's reducer as well.");
+            Log.d(TAG, "Recompiling view's reducer as well.");
             reduceBlock = View.getCompiler().compileReduce(reduceSource, language);
             if(reduceBlock == null) {
-                Log.w(Log.TAG_ROUTER, "View %s has unknown reduce function: %s", viewName, reduceBlock);
+                Log.w(TAG, "View " + viewName + " has unknown reduce function: " + reduceBlock);
                 return null;
             }
         } else {
-            //System.out.println(TAG + "View has no reducer. Skipping.");
+            //Log.d(TAG, "View has no reducer. Skipping.");
         }
 
         View view = db.getView(viewName);
         view.setMapReduce(mapBlock, reduceBlock, "1");
 
         if (reduceSource != null) {
-             //System.out.println(TAG + "Asserting view " + viewName + " got its reducer.");
+             //Log.d(TAG, "Asserting view " + viewName + " got its reducer.");
              assert(view.getReduce() != null);
         }
 
@@ -664,7 +659,7 @@ public class Couch {
     public void view_seed(String uuid, String username, String key_value) {
 //    public void view_seed(String uuid, String key_value) {
         if(seeds.get(uuid) == null) {
-            //System.out.println(TAG + "New set of seeds for uuid " + uuid + ", example: " + key_value);
+            //Log.d(TAG, "New set of seeds for uuid " + uuid + ", example: " + key_value);
             List<Object> keylist = new ArrayList<Object>();
             seeds.put(uuid, keylist);
         }
@@ -677,10 +672,10 @@ public class Couch {
 
     public void view_seed_cleanup(String uuid) {
         if(seeds.get(uuid) != null) {
-            //System.out.println(TAG + "Flushing seed keys for uuid " + uuid);
+            //Log.d(TAG, "Flushing seed keys for uuid " + uuid);
             seeds.remove(uuid);
         } 
-	//System.out.println(TAG + "Total views in progress: " + seeds.size());
+	//Log.d(TAG, "Total views in progress: " + seeds.size());
     }
 
     private View rebuildView(Database database, String designDoc, String viewName, boolean force) throws CouchbaseLiteException {
@@ -688,12 +683,12 @@ public class Couch {
         String name = designDoc + "/" + viewName;
 	int status = queryDesignDoc(database, designDoc, viewName, force).getCode();
 	if (status == Status.OK) {
-	    System.out.println(TAG + "View pulled in from disk " + name + ".");
+	    Log.d(TAG, "View pulled in from disk " + name + ".");
 	    v = database.getExistingView(name);
 	    assert(v != null);
 	    assert(v.getViewId() > 0);
 	} else {
-	    System.out.println(TAG + "Could not pull in view from disk: " + status);
+	    Log.d(TAG, "Could not pull in view from disk: " + status);
 	    return null;
 	}
 
@@ -707,22 +702,22 @@ public class Couch {
             View v = database.getExistingView(name);
 
             if (v == null) {
-                System.out.println(TAG + "view " + name + " not found. =(");
+                Log.d(TAG, "view " + name + " not found. =(");
 		v = rebuildView(database, designDoc, viewName, false);
 		if (v == null) {
 		    return null;
 	        }
             }
 
-            //System.out.println(TAG + "View found: " + name);
+            //Log.d(TAG, "View found: " + name);
 
             if (v.isStale()) {
-                System.out.println(TAG + "View is stale. Rebuilding and ReIndexing...");
+                Log.d(TAG, "View is stale. Rebuilding and ReIndexing...");
 		v = rebuildView(database, designDoc, viewName, true);
 		if (v == null) {
 		    return null;
 	        }
-                System.out.println(TAG + "Indexing complete.");
+                Log.d(TAG, "Indexing complete.");
             }
 
             if (v.getReduce() == null) {
@@ -730,9 +725,9 @@ public class Couch {
                 Map<String,Object> views = (Map<String,Object>)rev.getProperties().get("views");
                 Map<String,Object> viewProps = (Map<String,Object>)views.get(viewName);
                 if (viewProps.get("reduce") != null) {
-                    System.out.println(TAG + "Uh oh. This view really does have a reducer!!!. Couch is lying again. Need to file a bug.");
+                    Log.d(TAG, "Uh oh. This view really does have a reducer!!!. Couch is lying again. Need to file a bug.");
                     v = compileView(database, name, viewProps);
-                    System.out.println(TAG + "OK. Asserting that the liar is smacked:");
+                    Log.d(TAG, "OK. Asserting that the liar is smacked:");
                     assert(v.getReduce() != null);
                 }
             }
@@ -740,35 +735,35 @@ public class Couch {
             Query query = v.createQuery();
 
             if (parameters != null && parameters.length() > 0 && !(parameters.equals(""))) {
-                //System.out.println(TAG + "Converting parameters to objects: length: " + parameters.length() + ", contents: *" + parameters + "*");
+                //Log.d(TAG, "Converting parameters to objects: length: " + parameters.length() + ", contents: *" + parameters + "*");
                 Map<String, Object> properties = toJava(parameters);
 
-                //System.out.println(TAG + "Storing parameters to query: " + toJSON(properties));
+                //Log.d(TAG, "Storing parameters to query: " + toJSON(properties));
 
                 if (properties.get("startkey") != null && properties.get("endkey") != null) {
-                    //System.out.println(TAG + "Setting start and endkey");
+                    //Log.d(TAG, "Setting start and endkey");
                     query.setStartKey((List<Object>) properties.get("startkey"));
                     query.setEndKey((List<Object>) properties.get("endkey"));
                 } else if(properties.get("keys") != null) {
                     String uuid = (String) properties.get("keys");
-                    //System.out.println(TAG + "Setting seeds keys for uuid: " + uuid);
+                    //Log.d(TAG, "Setting seeds keys for uuid: " + uuid);
                     List<Object> keylist = (List<Object>) seeds.get(uuid);
                     assert(keylist != null);
                     seeds.remove(uuid);
                     query.setKeys(keylist);
-                    //System.out.println(TAG + "Finished setting seeds keys for uuid: " + uuid);
+                    //Log.d(TAG, "Finished setting seeds keys for uuid: " + uuid);
                 } else if(properties.get("stale") != null) {
-                    System.out.println(TAG + "WARNING: View request 'stale' parameter not supported!");
+                    Log.d(TAG, "WARNING: View request 'stale' parameter not supported!");
                 } 
             }
                 
-            //System.out.println(TAG + "Running query");
+            //Log.d(TAG, "Running query");
             QueryEnumerator rowEnum = query.run();
 
-            //System.out.println(TAG + "Query complete. Extracting results.");
+            //Log.d(TAG, "Query complete. Extracting results.");
 
             if (rowEnum.getCount() > 0) {
-                //System.out.println(TAG + "Returning final view results: " + rowEnum.getCount());
+                //Log.d(TAG, "Returning final view results: " + rowEnum.getCount());
                 return rowEnum;
             }
 
@@ -788,9 +783,9 @@ public class Couch {
         boolean has_next = it.hasNext();
 	/*
         if (has_next) {
-            System.out.println(TAG + "View iterator not exhausted yet.");
+            Log.d(TAG, "View iterator not exhausted yet.");
         } else {
-            System.out.println(TAG + "View iterator is exhausted.");
+            Log.d(TAG, "View iterator is exhausted.");
         }
 	*/
         return has_next;

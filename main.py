@@ -28,7 +28,6 @@ sys.path = [cwd, cwd + "mica/"] + sys.path
 WebView = autoclass('android.webkit.WebView')
 WebViewClient = autoclass('android.webkit.WebViewClient')
 activity = autoclass('org.renpy.android.PythonActivity').mActivity
-WebUpdate = autoclass('org.renpy.android.WebUpdate')
 String = autoclass('java.lang.String')
 MLog = autoclass("org.renpy.android.MLog")
 CouchBase = autoclass("org.renpy.android.Couch")
@@ -110,9 +109,9 @@ class Wv(Widget):
         try:
             urllib2.urlopen('http://localhost:10000/serve/favicon.ico')
             self.webview.loadUrl('http://localhost:10000/')
-            log.debug(String("Storing starting localbroadcast receiver for web updates"))
+            log.debug(String("Storing webview for web updates"))
             couch.setWebView(self.webview)
-            log.debug(String("WebUpdate initialized"))
+            log.debug(String("webview stored initialized"))
             #self.webview.setInitialScale(180);
             return
         except urllib2.HTTPError, e:

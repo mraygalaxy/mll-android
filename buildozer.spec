@@ -94,7 +94,7 @@ android.p4a_dir = %(source.dir)s/../../../../python-for-android
 # OUYA-ODK/libs/*.jar
 
 #android.add_jars = %(source.dir)s/jars/couchbase-lite-java-core-0.0.0-396.jar,%(source.dir)s/jars/couchbase-lite-android-0.0.0-396.jar,%(source.dir)s/jars/couchbase-lite-java-javascript-0.0.0-396.jar,%(source.dir)s/jars/couchbase-lite-java-listener-0.0.0-396.jar,%(source.dir)s/jars/rhino-1.7R3.jar,%(source.dir)s/jars/commons-io-2.0.1.jar,%(source.dir)s/jars/jackson-core-asl-1.9.2.jar,%(source.dir)s/jars/jackson-mapper-asl-1.9.2.jar,%(source.dir)s/jars/servlet-2-3.jar,%(source.dir)s/jars/webserver-2-3.jar
-android.add_jars = %(source.dir)s/jars/couchbase-lite-java-core-custom.jar,%(source.dir)s/jars/couchbase-lite-android-custom.jar,%(source.dir)s/jars/couchbase-lite-java-javascript-0.0.0-396.jar,%(source.dir)s/jars/couchbase-lite-java-listener-0.0.0-396.jar,%(source.dir)s/jars/rhino-1.7R3.jar,%(source.dir)s/jars/commons-io-2.0.1.jar,%(source.dir)s/jars/jackson-core-asl-1.9.2.jar,%(source.dir)s/jars/jackson-mapper-asl-1.9.2.jar,%(source.dir)s/jars/servlet-2-3.jar,%(source.dir)s/jars/webserver-2-3.jar,%(source.dir)s/jars/android-support-v4.jar
+android.add_jars = %(source.dir)s/jars/couchbase-lite-java-core-custom.jar,%(source.dir)s/jars/couchbase-lite-android-custom.jar,%(source.dir)s/jars/couchbase-lite-java-javascript-0.0.0-396.jar,%(source.dir)s/jars/couchbase-lite-java-listener-0.0.0-396.jar,%(source.dir)s/jars/rhino-1.7R3.jar,%(source.dir)s/jars/commons-io-2.0.1.jar,%(source.dir)s/jars/jackson-core-asl-1.9.2.jar,%(source.dir)s/jars/jackson-mapper-asl-1.9.2.jar,%(source.dir)s/jars/servlet-2-3.jar,%(source.dir)s/jars/webserver-2-3.jar
 
 # (list) List of Java files to add to the android project (can be java or a
 # directory containing the files)
