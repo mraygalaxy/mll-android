@@ -391,7 +391,7 @@ public class Couch {
             int total = replication.getChangesCount();
             Log.d(TAG, type + " Replicator processed " + processed + " / " + total);
             if (total != 0) {
-                final double percent = (double) processed / (double) Math.max(1, total) * 100.0;
+                final double percent = (double) Math.min(100.0, (double) processed / (double) Math.max(1, total) * 100.0);
                 if (webview != null) {
                     mActivity.runOnUiThread(new Runnable() {
                         @Override
