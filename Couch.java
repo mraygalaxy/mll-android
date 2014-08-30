@@ -601,6 +601,8 @@ public class Couch {
             IOUtils.copy(is, os);
             is.close();
             os.close();
+
+            Log.d(TAG, "Document: " + name + " exported to " + path);
             
             return "success";
         } catch(Exception e) {

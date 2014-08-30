@@ -105,7 +105,7 @@ class Wv(Widget):
     
     @run_on_ui_thread
     def go(self, *args) :
-        log.debug(String("polling twisted"))
+        #log.debug(String("polling twisted"))
         try:
             urllib2.urlopen('http://localhost:10000/serve/favicon.ico')
             self.webview.loadUrl('http://localhost:10000/')
@@ -115,9 +115,11 @@ class Wv(Widget):
             #self.webview.setInitialScale(180);
             return
         except urllib2.HTTPError, e:
-            log.warn(String(str(e.code)))
+            #log.warn(String(str(e.code)))
+            pass
         except urllib2.URLError, e:
-            log.warn(String(str(e.args)))
+            #log.warn(String(str(e.args)))
+            pass
         Clock.schedule_once(self.go, 1)
 
     @run_on_ui_thread
@@ -132,11 +134,11 @@ class Wv(Widget):
         #WebView.setWebContentsDebuggingEnabled(True);
         log.debug(String("setting content view"))
         activity.setContentView(self.webview)
-        log.debug(String("setting content view"))
         self.webview.loadData(String(second_splash()), "text/html", "utf-8");
         Clock.schedule_once(self.go, 5)
 
 def background() :
+    log.debug(String("Entering MICA thread"))
     go(parameters)
 
     while True:

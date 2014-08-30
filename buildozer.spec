@@ -19,7 +19,7 @@ source.include_exts = py,png,jpg,kv,atlas,crt,txt,js,css,html,gif,ico,svg,eot,wo
 #source.exclude_exts = spec
 
 # (list) List of directory to exclude (let empty to not exclude anything)
-source.exclude_dirs = tests, bin, service/mica/util, service/mica/data, service/mica/.git, service/mica/logs, service/mica/Data, service/mica/.git, service/mica/build, service/mica/ictc_32bit, service/mica/ictc_64bit, .git
+source.exclude_dirs = tests, bin, mica/util, mica/data, mica/.git, mica/logs, mica/Data, mica/.git, mica/build, mica/ictc_32bit, mica/ictc_64bit, .git
 
 # (list) List of exclusions using pattern matching
 #source.exclude_patterns = ictc*
