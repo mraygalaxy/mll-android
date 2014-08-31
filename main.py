@@ -126,9 +126,15 @@ class Wv(Widget):
     def create_webview(self, *args):
         log.debug(String("creating webview"))
         self.webview = WebView(activity)
-        self.webview.getSettings().setJavaScriptEnabled(True)
-        self.webview.getSettings().setBuiltInZoomControls(True)
-        self.webview.getSettings().setAllowUniversalAccessFromFileURLs(True)
+        self.webview.clearCache(True);
+        #self.webview.clearFormData();
+        #self.webview.clearHistory();
+        settings = self.webview.getSettings()
+        settings.setJavaScriptEnabled(True)
+        settings.setBuiltInZoomControls(True)
+        settings.setAllowUniversalAccessFromFileURLs(True)
+        #settings.setCacheMode(settings.LOAD_NO_CACHE);
+
         log.debug(String("setting webview client"))
         self.webview.setWebViewClient(WebViewClient());
         #WebView.setWebContentsDebuggingEnabled(True);
