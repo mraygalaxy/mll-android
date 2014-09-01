@@ -113,6 +113,8 @@ public class Couch {
     private Internet in;
     Activity mActivity = null;
     WebView webview = null;
+    private double pull_percent = 100.0;
+    private double push_percent = 100.0;
     
     public class MyJavaScriptInterface {
 	    public void someCallback(String jsResult) {
@@ -393,8 +395,23 @@ public class Couch {
             int processed = replication.getCompletedChangesCount();
             int total = replication.getChangesCount();
             Log.d(TAG, type + " Replicator processed " + processed + " / " + total);
-            if (total != 0) {
+            if (total != 0 && processed != 0) {
                 final double percent = (double) Math.min(100.0, (double) processed / (double) Math.max(1, total) * 100.0);
+                if (type.equals("pull")) {
+                    //Log.d(TAG, "(pull) " + type + " setting pull percent to " + percent + " from " + pull_percent);
+                    if (pull_percent == percent) {
+                        //Log.d(TAG, type + " no change.");
+                        return;
+                    }
+                    pull_percent = percent;
+                } else {
+                    //Log.d(TAG, "(push) " + type + " setting push percent to " + percent + " from " + push_percent);
+                    if (push_percent == percent) {
+                        //Log.d(TAG, type + " no change.");
+                        return;
+                    }
+                    push_percent = percent;
+                }
                 if (webview != null) {
                     mActivity.runOnUiThread(new Runnable() {
                         @Override
@@ -405,6 +422,7 @@ public class Couch {
                 } else {
                     Log.d(TAG, type + " webview not alive yet.");
                 }
+
             }
         }
     }
@@ -853,5 +871,17 @@ public class Couch {
             dumpError(e);
             return null;
         }
+    }
+
+    public String get_pull_percent() {
+        String per = String.format( "%.1f", pull_percent );
+        //Log.d(TAG, "Pull Returning " + per + " percent from " + pull_percent);
+        return per;
+    }
+
+    public String get_push_percent() {
+        String per = String.format( "%.1f", push_percent );
+        //Log.d(TAG, "Push Returning " + per + " percent from " + push_percent);
+        return per;
     }
 }
