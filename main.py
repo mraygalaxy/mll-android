@@ -5,6 +5,7 @@ import kivy
 from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.clock import Clock
+from kivy.core.window import Window
 from jnius import autoclass
 from android.runnable import run_on_ui_thread 
 from time import sleep
@@ -102,6 +103,13 @@ class Wv(Widget):
         Clock.schedule_once(self.create_webview, 0)
         log.debug(String("first clock scheduled"))
         self.wu = False
+        Window.bind(on_keyboard=self.disable_back_button_death)
+
+    def disable_back_button_death(self,window,key,*largs) :
+        if key == 27 :
+            log.debug(String("back button death is stupid. not doing it."))
+            return True
+        log.debug(String("Ignoring other buttons: " + str(key)))
     
     @run_on_ui_thread
     def go(self, *args) :
@@ -121,6 +129,11 @@ class Wv(Widget):
             #log.warn(String(str(e.args)))
             pass
         Clock.schedule_once(self.go, 1)
+
+    @run_on_ui_thread
+    def account(self) :
+        log.debug(String("Loading account settings."))
+        self.webview.loadUrl('http://localhost:10000/account')
 
     @run_on_ui_thread
     def create_webview(self, *args):
@@ -152,16 +165,21 @@ def background() :
         sleep(1)
         
 class ReaderApp(App):
+    def open_settings(self):
+        log.debug(String("Menu button pressed."))
+        self.mwv.account()
+
     def build(self):
         log.debug(String("Starting MICA thread."))
         self.t = threading.Thread(target = background)
         self.t.daemon = True
         self.t.start()
         log.debug(String("Started. Returning webview object"))
-        return Wv()
+        self.mwv = Wv()
+        return self.mwv 
 
     def on_pause(self):
-        ''' do something '''
+        log.debug(String("MICA is pausing. Don't know what to do about that yet."))
         return True
 
 if __name__ == '__main__':
