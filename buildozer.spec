@@ -33,7 +33,7 @@ version.filename = %(source.dir)s/main.py
 
 # (list) Application requirements
 #requirements = setuptools==1.2,pyopenssl,openssl,sqlite3,sqlalchemy==0.6.9,twisted,kivy,cjklib,webob,couchdb
-requirements = pyopenssl,openssl,sqlite3,twisted,kivy
+requirements = openssl,sqlite3,twisted,kivy
 
 # (list) Garden requirements
 #garden_requirements =
