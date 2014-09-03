@@ -244,7 +244,7 @@ public class Couch {
 	    Credentials creds = new Credentials(username, password);
 	    listener = new LiteListener(manager, suggestedListenPort, creds);
 	    listenerThread = new Thread(listener);
-	    listenerThread.start();
+	    //listenerThread.start();
 	    cert_path = cert;
 
 	    wifi_receiver = new BroadcastReceiver()

@@ -19,7 +19,7 @@ import codecs
 
 print "Starting up."
 
-from params import parameters, app
+from params import parameters
 from mica.mica import go
                  
 cwd = re.compile(".*\/").search(os.path.realpath(__file__)).group(0)
@@ -46,20 +46,12 @@ cert = fh.read()
 fh.close()
 
 log.debug(String("Starting couchbase"))
-couch = CouchBase(String(app["local_username"]), String(app["local_password"]), app["local_port"], String(cert), activity)
-port = couch.start(String(app["local_database"]))
+couch = CouchBase(String(parameters["local_username"]), String(parameters["local_password"]), parameters["local_port"], String(cert), activity)
+port = couch.start(String(parameters["local_database"]))
 
 if port == -1 :
     log.error(String("AAAHHHHHH. FAILURE."))
-else :
     log.debug(String("Trying to start replication"))
-    user = app["remote_user"] 
-    pw = app["remote_password"] 
-    url = app["remote_protocol"] + "://" + user + ":" + pw + "@" + app["remote_host"] + ":" + str(app["remote_port"])
-    if couch.replicate(String(app["remote_database"]), String(url), False) == -1 :
-        log.error(String("Replication failed. Boo. =("))
-    else :
-        log.debug(String("Replication started. Yay."))
 
 parameters["couch"] = couch
 parameters["mobileinternet"] = mobile_internet
