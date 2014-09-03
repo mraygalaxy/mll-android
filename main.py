@@ -20,7 +20,7 @@ import codecs
 print "Starting up."
 
 from params import parameters
-from mica.mica import go
+from mica.mica import go, second_splash
                  
 cwd = re.compile(".*\/").search(os.path.realpath(__file__)).group(0)
 
@@ -56,37 +56,6 @@ if port == -1 :
 parameters["couch"] = couch
 parameters["mobileinternet"] = mobile_internet
 parameters["duplicate_logger"] = log
-
-def second_splash() :
-    fh = open(cwd + "splash_template.html", 'r') 
-    output = fh.read()
-    fh.close() 
-
-    fh = open(cwd + "icon.png", 'r')
-    contents = fh.read() 
-    encoded1 = base64.b64encode(contents)
-    fh.close()
-
-    output += "<img src='data:image/jpeg;base64," + str(encoded1) + "' width='100%'/>"
-    output += """
-</div>
-<div class="inner2">
-"""
-    output += "<p><p><p>"
-    fh = open(cwd + "mica/serve/spinner.gif", 'r')
-    contents = fh.read() 
-    encoded2 = base64.b64encode(contents)
-    fh.close()
-    output += "<img src='data:image/jpeg;base64," + str(encoded2) + "' width='10%'/>"
-    output += "&nbsp;&nbsp;Please wait...</p>"
-    output += """
-</div>
-<div class="inner3">
-</div>
-</body>
-</html>
-"""
-    return output
 
 class Wv(Widget):
     def __init__(self, **kwargs):
