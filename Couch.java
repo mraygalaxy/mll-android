@@ -440,7 +440,7 @@ public class Couch {
 
         URL url;
         try {
-            url = new URL(server + "/" + database_name);
+            url = new URL(server);
         } catch (MalformedURLException e) {
             Log.d(TAG, "Your replication URL is not good: " + e);
             return -1;
