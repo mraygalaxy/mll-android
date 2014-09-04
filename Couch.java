@@ -428,10 +428,16 @@ public class Couch {
     }
 
     public int replicate(String database_name, String server, boolean force) {
+        Log.d(TAG, "Checking for old replications...");
+
+        Log.d(TAG, "Parameters: " + database_name + " " + server + " " + force);
 	if (pushes.get(database_name) != null || pulls.get(database_name) != null) {
             Log.d(TAG, "Database " + database_name + " is already replicating.");
 	    return 0;
 	}
+
+        Log.d(TAG, "Constructing URL...");
+
         URL url;
         try {
             url = new URL(server + "/" + database_name);
@@ -439,50 +445,60 @@ public class Couch {
             Log.d(TAG, "Your replication URL is not good: " + e);
             return -1;
         }
-        Log.d(TAG, "creating replicator");
+        try {
+            Log.d(TAG, "creating replicator");
 
-	if (urls.get(database_name) == null) {
-		urls.put(database_name, server);
-	}
+            if (urls.get(database_name) == null) {
+                    urls.put(database_name, server);
+            }
 
-	String conn = in.connected();
-	
-	if (in.connected() == "expensive") {
-		Log.d(TAG, "Not going to start replication on 3G =(");
-		return 0;
-	} else if(force || conn == "online") {
-		Log.d(TAG, "Starting replication!");
-	} else {
-		Log.d(TAG, "No internet. Not starting replication.");
-		return 0;
+            Log.d(TAG, "checking connectivity.");
+            String conn = in.connected();
+            
+            if (in.connected() == "expensive") {
+                    Log.d(TAG, "Not going to start replication on 3G =(");
+                    return 0;
+            } else if(force || conn == "online") {
+                    Log.d(TAG, "Starting replication!");
+            } else {
+                    Log.d(TAG, "No internet. Not starting replication.");
+                    return 0;
+            }
+
+            Log.d(TAG, "replication getting database.");
+
+            Database database = (Database) dbs.get(database_name);
+            assert(database != null); 
+            Replication pull = database.createPullReplication(url);
+            Replication push = database.createPushReplication(url);
+            pull.setContinuous(true);
+            push.setContinuous(true);
+
+            Log.d(TAG, "Setting change listeners for replication");
+
+            pull.addChangeListener(new Replication.ChangeListener() {
+                @Override
+                public void changed(Replication.ChangeEvent event) {
+                    updateReplication(event, "pull");
+                }
+            });
+
+            push.addChangeListener(new Replication.ChangeListener() {
+                @Override
+                public void changed(Replication.ChangeEvent event) {
+                    updateReplication(event, "push");
+                }
+            });
+
+            Log.d(TAG, "replication starting....");
+            pull.start();
+            push.start();
+            pulls.put(database_name, pull);
+            pushes.put(database_name, push);
+        } catch (Exception e) {
+            dumpError(e);
+            return -1;
         }
-
-        Database database = (Database) dbs.get(database_name);
-        Replication pull = database.createPullReplication(url);
-        Replication push = database.createPushReplication(url);
-        pull.setContinuous(true);
-        push.setContinuous(true);
-
-        Log.d(TAG, "Setting change listeners for replication");
-
-        pull.addChangeListener(new Replication.ChangeListener() {
-            @Override
-            public void changed(Replication.ChangeEvent event) {
-                updateReplication(event, "pull");
-            }
-        });
-
-        push.addChangeListener(new Replication.ChangeListener() {
-            @Override
-            public void changed(Replication.ChangeEvent event) {
-                updateReplication(event, "push");
-            }
-        });
-
-	pull.start();
-	push.start();
-        pulls.put(database_name, pull);
-        pushes.put(database_name, push);
 
         return 0;
     }
