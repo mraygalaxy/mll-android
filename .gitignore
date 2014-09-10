@@ -8,3 +8,4 @@ service/.cache
 *.swo
 mica/
 params.py
+mica_session
