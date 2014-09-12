@@ -7,5 +7,4 @@ service/.cache
 *.swp
 *.swo
 mica/
-params.py
 mica_session
