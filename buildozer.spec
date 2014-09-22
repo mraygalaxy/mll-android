@@ -32,7 +32,6 @@ version.filename = %(source.dir)s/main.py
 # version = 1.2.0
 
 # (list) Application requirements
-#requirements = setuptools==1.2,pyopenssl,openssl,sqlite3,sqlalchemy==0.6.9,twisted,kivy,cjklib,webob,couchdb
 requirements = openssl,sqlite3,twisted,kivy
 
 # (list) Garden requirements
@@ -93,8 +92,9 @@ android.p4a_dir = %(source.dir)s/../../../../python-for-android
 # down the build process. Allows wildcards matching, for example:
 # OUYA-ODK/libs/*.jar
 
-#android.add_jars = %(source.dir)s/jars/couchbase-lite-java-core-0.0.0-396.jar,%(source.dir)s/jars/couchbase-lite-android-0.0.0-396.jar,%(source.dir)s/jars/couchbase-lite-java-javascript-0.0.0-396.jar,%(source.dir)s/jars/couchbase-lite-java-listener-0.0.0-396.jar,%(source.dir)s/jars/rhino-1.7R3.jar,%(source.dir)s/jars/commons-io-2.0.1.jar,%(source.dir)s/jars/jackson-core-asl-1.9.2.jar,%(source.dir)s/jars/jackson-mapper-asl-1.9.2.jar,%(source.dir)s/jars/servlet-2-3.jar,%(source.dir)s/jars/webserver-2-3.jar
-android.add_jars = %(source.dir)s/jars/couchbase-lite-java-core-custom.jar,%(source.dir)s/jars/couchbase-lite-android-custom.jar,%(source.dir)s/jars/couchbase-lite-java-javascript-0.0.0-396.jar,%(source.dir)s/jars/couchbase-lite-java-listener-0.0.0-396.jar,%(source.dir)s/jars/rhino-1.7R3.jar,%(source.dir)s/jars/commons-io-2.0.1.jar,%(source.dir)s/jars/jackson-core-asl-1.9.2.jar,%(source.dir)s/jars/jackson-mapper-asl-1.9.2.jar,%(source.dir)s/jars/servlet-2-3.jar,%(source.dir)s/jars/webserver-2-3.jar
+#android.add_jars = %(source.dir)s/jars/couchbase-lite-java-core-1.0.2.jar,%(source.dir)s/jars/couchbase-lite-android-1.0.2.jar,%(source.dir)s/jars/couchbase-lite-java-javascript-1.0.2.jar,%(source.dir)s/jars/couchbase-lite-java-listener-1.0.2.jar,%(source.dir)s/jars/rhino-1.7R3.jar,%(source.dir)s/jars/commons-io-2.0.1.jar,%(source.dir)s/jars/jackson-core-asl-1.9.2.jar,%(source.dir)s/jars/jackson-mapper-asl-1.9.2.jar,%(source.dir)s/jars/servlet-2-3.jar,%(source.dir)s/jars/webserver-2-3.jar
+#android.add_jars = %(source.dir)s/jars/couchbase-lite-java-core-custom.jar,%(source.dir)s/jars/couchbase-lite-android-custom.jar,%(source.dir)s/jars/couchbase-lite-java-javascript-1.0.2.jar,%(source.dir)s/jars/couchbase-lite-java-listener-1.0.2.jar,%(source.dir)s/jars/rhino-1.7R3.jar,%(source.dir)s/jars/commons-io-2.0.1.jar,%(source.dir)s/jars/jackson-core-asl-1.9.2.jar,%(source.dir)s/jars/jackson-mapper-asl-1.9.2.jar,%(source.dir)s/jars/servlet-2-3.jar,%(source.dir)s/jars/webserver-2-3.jar
+android.add_jars = %(source.dir)s/jars/couchbase-lite-java-core-1.0.2.jar,%(source.dir)s/jars/couchbase-lite-android-1.0.2.jar,%(source.dir)s/jars/couchbase-lite-java-javascript-1.0.2.jar,%(source.dir)s/jars/couchbase-lite-java-listener-1.0.2.jar,%(source.dir)s/jars/rhino-1.7R3.jar,%(source.dir)s/jars/commons-io-2.0.1.jar,%(source.dir)s/jars/jackson-core-asl-1.9.2.jar,%(source.dir)s/jars/jackson-mapper-asl-1.9.2.jar,%(source.dir)s/jars/servlet-2-3.jar,%(source.dir)s/jars/webserver-2-3.jar
 
 # (list) List of Java files to add to the android project (can be java or a
 # directory containing the files)
