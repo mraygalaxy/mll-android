@@ -6,8 +6,11 @@ from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.clock import Clock
 from kivy.core.window import Window
-from jnius import autoclass
-from android.runnable import run_on_ui_thread 
+try :
+    from jnius import autoclass
+    from android.runnable import run_on_ui_thread 
+except ImportError, e :
+    pass
 from time import sleep
 import base64
 import re
