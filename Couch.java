@@ -59,6 +59,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PushbackInputStream;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -900,5 +901,11 @@ public class Couch {
         String per = String.format( "%.1f", push_percent );
         //Log.d(TAG, "Push Returning " + per + " percent from " + push_percent);
         return per;
+    }
+
+    public String get_language() {
+        String l = Locale.getDefault().getLanguage();
+        Log.d(TAG, "MICA Language should be: " + l);
+        return l;
     }
 }
