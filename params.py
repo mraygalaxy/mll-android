@@ -1,9 +1,8 @@
 # coding: utf-8
-import os
-import sys
-import re
+from os import path as os_path
+from re import compile as re_compile
 
-cwd = re.compile(".*\/").search(os.path.realpath(__file__)).group(0)
+cwd = re_compile(".*\/").search(os_path.realpath(__file__)).group(0)
 
 parameters = {
            "port" : 10000,
