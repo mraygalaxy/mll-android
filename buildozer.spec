@@ -1,13 +1,13 @@
 [app]
 
 # (str) Title of your application
-title = MICA Reader 
+title = MICA Learning 
 
 # (str) Package name
-package.name = reader
+package.name = mica
 
 # (str) Package domain (needed for android/ios packaging)
-package.domain = com.mica
+package.domain = com.hinespot
 
 # (str) Source code where the main.py live
 source.dir = .
@@ -32,7 +32,7 @@ version.filename = %(source.dir)s/main.py
 # version = 1.2.0
 
 # (list) Application requirements
-requirements = openssl,sqlite3,twisted,kivy
+requirements = openssl,pyopenssl,sqlite3,twisted,kivy
 
 # (list) Garden requirements
 #garden_requirements =

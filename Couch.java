@@ -114,7 +114,7 @@ public class Couch {
     private Internet in;
     Activity mActivity = null;
     WebView webview = null;
-    private double pull_percent = 100.0;
+    private double pull_percent = 0.0;
     private double push_percent = 100.0;
     
     public class MyJavaScriptInterface {
