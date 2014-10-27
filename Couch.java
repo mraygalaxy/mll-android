@@ -209,6 +209,10 @@ public class Couch {
     }
 
     public Couch(String username, String password, int suggestedListenPort, String cert, Activity activity) throws IOException {
+        Log.d(TAG, "Replication status options: username " + username + " active " + Replication.ReplicationStatus.REPLICATION_ACTIVE +
+		   " idle " + Replication.ReplicationStatus.REPLICATION_IDLE +
+ 	           " offline " + Replication.ReplicationStatus.REPLICATION_OFFLINE +
+	           " stopped " + Replication.ReplicationStatus.REPLICATION_STOPPED);
         try {
             dbs = new HashMap<String, Object>();
             pulls = new HashMap<String, Object>();
@@ -221,16 +225,17 @@ public class Couch {
             Log.d(TAG, "Trying to get build android context.");
             MicaContext mc = new MicaContext(context);
             Log.d(TAG, "Trying to make manager.");
-            //Manager.enableLogging(com.couchbase.lite.util.Log.TAG, com.couchbase.lite.util.Log.VERBOSE);
-            //Manager.enableLogging(com.couchbase.lite.util.Log.TAG_SYNC, com.couchbase.lite.util.Log.VERBOSE);
-            //Manager.enableLogging(com.couchbase.lite.util.Log.TAG_QUERY, com.couchbase.lite.util.Log.VERBOSE);
+            Manager.enableLogging(com.couchbase.lite.util.Log.TAG, com.couchbase.lite.util.Log.VERBOSE);
+            Manager.enableLogging(com.couchbase.lite.util.Log.TAG_SYNC, com.couchbase.lite.util.Log.VERBOSE);
+            Manager.enableLogging(com.couchbase.lite.util.Log.TAG_QUERY, com.couchbase.lite.util.Log.VERBOSE);
             Manager.enableLogging(com.couchbase.lite.util.Log.TAG_VIEW, com.couchbase.lite.util.Log.VERBOSE);
-            //Manager.enableLogging(com.couchbase.lite.util.Log.TAG_DATABASE, com.couchbase.lite.util.Log.VERBOSE);
-            //Manager.enableLogging(com.couchbase.lite.util.Log.TAG_REMOTE_REQUEST, com.couchbase.lite.util.Log.VERBOSE);
+            Manager.enableLogging(com.couchbase.lite.util.Log.TAG_DATABASE, com.couchbase.lite.util.Log.VERBOSE);
+            Manager.enableLogging(com.couchbase.lite.util.Log.TAG_REMOTE_REQUEST, com.couchbase.lite.util.Log.VERBOSE);
             Manager.enableLogging(com.couchbase.lite.util.Log.TAG_ROUTER, com.couchbase.lite.util.Log.VERBOSE);
             Manager.enableLogging(com.couchbase.lite.util.Log.TAG_LISTENER, com.couchbase.lite.util.Log.VERBOSE);
-            //Manager.enableLogging(com.couchbase.lite.util.Log.TAG_MULTI_STREAM_WRITER, com.couchbase.lite.util.Log.VERBOSE);
+            Manager.enableLogging(com.couchbase.lite.util.Log.TAG_MULTI_STREAM_WRITER, com.couchbase.lite.util.Log.VERBOSE);
             Manager.enableLogging(com.couchbase.lite.util.Log.TAG_BLOB_STORE, com.couchbase.lite.util.Log.VERBOSE);
+            Manager.enableLogging(com.couchbase.lite.util.Log.TAG_CHANGE_TRACKER, com.couchbase.lite.util.Log.VERBOSE);
             manager = new Manager(mc, Manager.DEFAULT_OPTIONS);
             Log.d(TAG, "Trying to set compiler.");
             View.setCompiler(new JavaScriptViewCompiler());
@@ -395,7 +400,7 @@ public class Couch {
         } else {
             int processed = replication.getCompletedChangesCount();
             int total = replication.getChangesCount();
-            Log.d(TAG, type + " Replicator processed " + processed + " / " + total);
+            Log.d(TAG, type + " Replicator processed " + processed + " / " + total + " status: " + replication.getStatus());
             if (total != 0) {
                 final double percent = (double) Math.min(100.0, (double) processed / (double) Math.max(1, total) * 100.0);
                 if (type.equals("pull")) {
