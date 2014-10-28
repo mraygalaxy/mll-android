@@ -30,6 +30,9 @@ parameters = {
            "couch_proto" : "https",
            "couch_port" : "6984",
 
+           "trans_id" : False,
+           "trans_secret" : False,
+
             # Only used during development by uncommenting
             # a hard-coded HTTP listener for debugging purposes.
             # couchdb listener is not enabled in the app store
