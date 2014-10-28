@@ -546,7 +546,7 @@ public class Couch {
             Database database = (Database) dbs.get(dbname);
             Document doc = database.getExistingDocument(name);
             if (doc == null) {
-                    Log.w(TAG, "DB " + dbname + " Document is not here: " + name);
+                    //Log.w(TAG, "DB " + dbname + " Document is not here: " + name);
                     return "";
             } 
             return toJSON(doc.getProperties());
