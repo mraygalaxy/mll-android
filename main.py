@@ -117,7 +117,8 @@ class Wv(Widget):
         #WebView.setWebContentsDebuggingEnabled(True);
         log.debug(String("setting content view"))
         activity.setContentView(self.webview)
-        self.webview.loadData(String(second_splash()), "text/html", "utf-8");
+        language = couch.get_language()
+        self.webview.loadData(String(second_splash(language)), "text/html", "utf-8");
         Clock.schedule_once(self.go, 5)
 
 def background() :
