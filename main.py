@@ -23,7 +23,8 @@ import codecs
 print "Starting up."
 
 from params import parameters
-from mica.mica import go, second_splash, pre_init_localization
+from mica.mica import go, second_splash
+from mica.common import pre_init_localization
                  
 cwd = re.compile(".*\/").search(os.path.realpath(__file__)).group(0)
 
@@ -50,7 +51,8 @@ fh.close()
 
 log.debug(String("Starting couchbase"))
 couch = CouchBase(String(parameters["local_username"]), String(parameters["local_password"]), parameters["local_port"], String(cert), activity)
-pre_init_localization()
+#pre_init_localization(couch.get_language().UTF8String())
+pre_init_localization(couch.get_language(), log)
 port = couch.start(String(parameters["local_database"]))
 
 if port == -1 :
@@ -108,6 +110,7 @@ class Wv(Widget):
         #self.webview.clearFormData();
         #self.webview.clearHistory();
         settings = self.webview.getSettings()
+        settings.setDefaultTextEncodingName("utf-8")
         settings.setJavaScriptEnabled(True)
         settings.setBuiltInZoomControls(True)
         settings.setAllowUniversalAccessFromFileURLs(True)
@@ -118,8 +121,7 @@ class Wv(Widget):
         #WebView.setWebContentsDebuggingEnabled(True);
         log.debug(String("setting content view"))
         activity.setContentView(self.webview)
-        language = couch.get_language()
-        self.webview.loadData(String(second_splash(language)), "text/html", "utf-8");
+        self.webview.loadData(String(second_splash()), "text/html; charset=utf-8", "utf-8");
         Clock.schedule_once(self.go, 5)
 
 def background() :
