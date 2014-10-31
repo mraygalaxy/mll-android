@@ -51,7 +51,6 @@ fh.close()
 
 log.debug(String("Starting couchbase"))
 couch = CouchBase(String(parameters["local_username"]), String(parameters["local_password"]), parameters["local_port"], String(cert), activity)
-#pre_init_localization(couch.get_language().UTF8String())
 pre_init_localization(couch.get_language(), log)
 port = couch.start(String(parameters["local_database"]))
 
