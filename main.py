@@ -23,7 +23,7 @@ import codecs
 print "Starting up."
 
 from params import parameters
-from mica.mica import go, second_splash
+from mica.mica import go, second_splash, pre_init_localization
                  
 cwd = re.compile(".*\/").search(os.path.realpath(__file__)).group(0)
 
@@ -50,6 +50,7 @@ fh.close()
 
 log.debug(String("Starting couchbase"))
 couch = CouchBase(String(parameters["local_username"]), String(parameters["local_password"]), parameters["local_port"], String(cert), activity)
+pre_init_localization()
 port = couch.start(String(parameters["local_database"]))
 
 if port == -1 :
