@@ -16,13 +16,13 @@ source.dir = .
 source.include_exts = py,png,jpg,kv,atlas,crt,js,css,html,gif,ico,svg,eot,woff,ttf,csv,sql,mo
 
 # (list) Source files to exclude (let empty to not exclude anything)
-#source.exclude_exts = spec
+#source.exclude_exts = mica/params.py
 
 # (list) List of directory to exclude (let empty to not exclude anything)
 source.exclude_dirs = tests, bin, mica/util, mica/data, mica/.git, mica/logs, mica/Data, mica/.git, mica/build, mica/ictc_32bit, mica/ictc_64bit, .git
 
 # (list) List of exclusions using pattern matching
-#source.exclude_patterns = ictc*
+source.exclude_patterns = mica/params.py
 
 # (str) Application versioning (method 1)
 version.regex = __version__ = ['"](.*)['"]
