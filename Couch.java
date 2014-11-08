@@ -108,6 +108,7 @@ public class Couch {
     private HashMap<String, Object> pulls;
     private HashMap<String, Object> pushes;
     private HashMap<String, Object> urls;
+    private HashMap<String, String> filters;
     private HashMap<String, Object> seeds;
     String cert_path = null;
     private BroadcastReceiver wifi_receiver;
@@ -219,6 +220,7 @@ public class Couch {
             pushes = new HashMap<String, Object>();
             seeds = new HashMap<String, Object>();
             urls = new HashMap<String, Object>();
+            filters = new HashMap<String, String>();
 	    mActivity = activity;
             Log.d(TAG, "Trying to get application context.");
             context = mActivity.getApplicationContext();
@@ -302,7 +304,8 @@ public class Couch {
 			
 			if (start) {
 			    Log.d(TAG, "Starting replication for DB: " + database_name);
-		            replicate(database_name, url, true);
+                            String filterparams = filters.get(database_name);
+		            replicate(database_name, url, true, filterparams);
 			} else {
 			    Log.d(TAG, "Stopping replication for DB: " + database_name);
 			    stop_replication(database_name);
@@ -391,6 +394,14 @@ public class Couch {
 	     //db.close();
              Log.d(TAG, "Closed database: " + database_name);
 	}
+
+        if (urls.get(database_name) != null) {
+                urls.remove(database_name);
+        }
+
+        if (filters.get(database_name) != null) {
+                filters.remove(database_name);
+        }
     }
 
     private void updateReplication(Replication.ChangeEvent event, final String type) {
@@ -433,10 +444,10 @@ public class Couch {
         }
     }
 
-    public int replicate(String database_name, String server, boolean force) {
+    public int replicate(String database_name, String server, boolean force, String filterparams) {
         Log.d(TAG, "Checking for old replications...");
 
-        Log.d(TAG, "Parameters: " + database_name + " " + server + " " + force);
+        Log.d(TAG, "Parameters: " + database_name + " " + server + " " + force + " " + filterparams);
 	if (pushes.get(database_name) != null || pulls.get(database_name) != null) {
             Log.d(TAG, "Database " + database_name + " is already replicating.");
 	    return 0;
@@ -456,6 +467,10 @@ public class Couch {
 
             if (urls.get(database_name) == null) {
                     urls.put(database_name, server);
+            }
+
+            if (filters.get(database_name) == null) {
+                    filters.put(database_name, filterparams);
             }
 
             Log.d(TAG, "checking connectivity.");
@@ -497,6 +512,10 @@ public class Couch {
             });
 
             Log.d(TAG, "replication starting....");
+            Map<String,Object> params = toJava(filterparams);
+            pull.setFilter((String) params.get("name"));
+            params.remove("name");
+            pull.setFilterParams(params);
             pull.start();
             push.start();
             pulls.put(database_name, pull);
