@@ -404,6 +404,19 @@ public class Couch {
         }
     }
 
+    public void updateView(final String js) {
+            if (webview != null) {
+                mActivity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        webview.loadUrl("javascript: " + js);
+                    }
+                });
+            } else {
+                Log.d(TAG, "webview not alive yet.");
+            }
+    }
+
     private void updateReplication(Replication.ChangeEvent event, final String type) {
         Replication replication = event.getSource();
         if (!replication.isRunning()) {
@@ -429,17 +442,8 @@ public class Couch {
                     }
                     push_percent = percent;
                 }
-                if (webview != null) {
-                    mActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            webview.loadUrl("javascript: " + type + "stat('" + String.format( "%.1f", percent ) + "');");
-                        }
-                    });
-                } else {
-                    Log.d(TAG, type + " webview not alive yet.");
-                }
 
+                updateView(type + "stat('" + String.format( "%.1f", percent ) + "');");
             }
         }
     }
