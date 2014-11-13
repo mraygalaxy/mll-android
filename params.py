@@ -26,7 +26,7 @@ parameters = {
            "transcheck" : False,
            "mobileinternet" : False,
 
-           "couch_server" : "mica.hinespot.com",
+           "couch_server" : "readalien.com",
            "couch_proto" : "https",
            "couch_port" : "6984",
 
