@@ -26,9 +26,9 @@ parameters = {
            "transcheck" : False,
            "mobileinternet" : False,
 
-           "couch_server" : "readalien.com",
+           "couch_server" : "db.readalien.com",
            "couch_proto" : "https",
-           "couch_port" : "6984",
+           "couch_port" : "443",
 
            "trans_id" : False,
            "trans_secret" : False,
