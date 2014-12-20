@@ -49,6 +49,7 @@ import com.couchbase.lite.UnsavedRevision;
 import com.couchbase.lite.internal.RevisionInternal;
 import com.couchbase.lite.Database.TDContentOptions;
 import com.couchbase.lite.Mapper;
+import com.couchbase.lite.Emitter;
 import com.couchbase.lite.Reducer;
 import com.couchbase.lite.View.TDViewCollation;
 
@@ -110,6 +111,9 @@ public class Couch {
     private HashMap<String, Object> urls;
     private HashMap<String, String> filters;
     private HashMap<String, Object> seeds;
+    private HashMap<String, Mapper> mappers;
+    private HashMap<String, Reducer> reducers;
+
     String cert_path = null;
     private BroadcastReceiver wifi_receiver;
     private Internet in;
@@ -221,17 +225,20 @@ public class Couch {
             seeds = new HashMap<String, Object>();
             urls = new HashMap<String, Object>();
             filters = new HashMap<String, String>();
+            mappers = new HashMap<String, Mapper>();
+            reducers = new HashMap<String, Reducer>();
+
 	    mActivity = activity;
             Log.d(TAG, "Trying to get application context.");
             context = mActivity.getApplicationContext();
             Log.d(TAG, "Trying to get build android context.");
             MicaContext mc = new MicaContext(context);
             Log.d(TAG, "Trying to make manager.");
-            //Manager.enableLogging(com.couchbase.lite.util.Log.TAG, com.couchbase.lite.util.Log.VERBOSE);
+            Manager.enableLogging(com.couchbase.lite.util.Log.TAG, com.couchbase.lite.util.Log.VERBOSE);
             //Manager.enableLogging(com.couchbase.lite.util.Log.TAG_SYNC, com.couchbase.lite.util.Log.VERBOSE);
-            //Manager.enableLogging(com.couchbase.lite.util.Log.TAG_QUERY, com.couchbase.lite.util.Log.VERBOSE);
-            //Manager.enableLogging(com.couchbase.lite.util.Log.TAG_VIEW, com.couchbase.lite.util.Log.VERBOSE);
-            //Manager.enableLogging(com.couchbase.lite.util.Log.TAG_DATABASE, com.couchbase.lite.util.Log.VERBOSE);
+            Manager.enableLogging(com.couchbase.lite.util.Log.TAG_QUERY, com.couchbase.lite.util.Log.VERBOSE);
+            Manager.enableLogging(com.couchbase.lite.util.Log.TAG_VIEW, com.couchbase.lite.util.Log.VERBOSE);
+            Manager.enableLogging(com.couchbase.lite.util.Log.TAG_DATABASE, com.couchbase.lite.util.Log.VERBOSE);
             //Manager.enableLogging(com.couchbase.lite.util.Log.TAG_REMOTE_REQUEST, com.couchbase.lite.util.Log.VERBOSE);
             //Manager.enableLogging(com.couchbase.lite.util.Log.TAG_ROUTER, com.couchbase.lite.util.Log.VERBOSE);
             //Manager.enableLogging(com.couchbase.lite.util.Log.TAG_LISTENER, com.couchbase.lite.util.Log.VERBOSE);
@@ -292,6 +299,111 @@ public class Couch {
         } catch (Exception e) {
 		dumpError(e);
         }
+
+        Reducer countReducer = new Reducer() {
+            public Object reduce(List<Object> keys, List<Object> values, boolean rereduce) {
+                if (rereduce) {
+                    return View.totalValues(values);
+                } else {
+                    return new Integer(values.size());
+                }
+            }
+        };
+
+
+        mappers.put("stories/translating", new Mapper() {
+            public void map(Map<String, Object> document, Emitter emitter) {
+                String id = (String) document.get("_id");
+                if (id.matches("MICA:[^:]+:stories:[^:]+$") && document.get("translating") != null) {
+                    if ((Boolean) document.get("translating"))
+                        emitter.emit(new String[] {id.replaceAll("(MICA:|:stories:.*)", ""), (String) document.get("name")}, document);
+                }
+            }
+        });
+
+        mappers.put("stories/upgrading", new Mapper() {
+            public void map(Map<String, Object> document, Emitter emitter) {
+                String id = (String) document.get("_id");
+                if (id.matches("MICA:[^:]+:stories:[^:]+$") && document.get("upgrading") != null) {
+                    if ((Boolean) document.get("upgrading"))
+                        emitter.emit(new String[] {id.replaceAll("(MICA:|:stories:.*)", ""), (String) document.get("name")}, document);
+                }
+            }
+        });
+        mappers.put("stories/all", new Mapper() {        
+            public void map(Map<String, Object> document, Emitter emitter) {
+                String id = (String) document.get("_id");
+                if (id.matches("MICA:[^:]+:stories:[^:]+$"))
+                    emitter.emit(new String[] {id.replaceAll("(MICA:|:stories:.*)", ""), (String) document.get("name")}, document);
+            }
+        });
+
+        mappers.put("stories/allpages", new Mapper() {        
+            public void map(Map<String, Object> document, Emitter emitter) {
+                String id = (String) document.get("_id");
+                if (id.matches("MICA:[^:]+:stories:[^:]+:pages:[^:]+$"))
+                    emitter.emit(new String[] {id.replaceAll("(MICA:|:stories:.*)", ""), id.replaceAll("(MICA:[^:]+:stories:|:pages:.*)", ""), id.replaceAll("MICA:[^:]+:stories:[^:]+:pages:", "")}, document);
+            }
+        });
+
+        mappers.put("stories/pages", mappers.get("stories/allpages"));
+        reducers.put("stories/pages", countReducer);
+
+        mappers.put("stories/alloriginal", new Mapper() {
+            public void map(Map<String, Object> document, Emitter emitter) {
+                String id = (String) document.get("_id");
+                if (id.matches("MICA:[^:]+:stories:[^:]+:original:[^:]+$"))
+                    emitter.emit(new String[] {id.replaceAll("(MICA:|:stories:.*)", ""), id.replaceAll("(MICA:[^:]+:stories:|:original:.*)", ""), id.replaceAll("MICA:[^:]+:stories:[^:]+:original:", "")}, document);
+            }
+        });
+
+        mappers.put("stories/original", mappers.get("stories/alloriginal")); 
+        reducers.put("stories/original", countReducer);
+
+        mappers.put("accounts/all", new Mapper() {
+            public void map(Map<String, Object> document, Emitter emitter) {
+                if(document.get("mica_database") != null)
+                    emitter.emit(document, document);
+            }
+        });
+
+        mappers.put("accounts/allcount", mappers.get("accounts/all"));
+        reducers.put("accounts/allcount", countReducer);
+
+        mappers.put("memorized/all", new Mapper() {
+            public void map(Map<String, Object> document, Emitter emitter) {
+                String id = (String) document.get("_id");
+                if (id.matches("MICA:[^:]+:memorized:[^:]+$"))
+                    emitter.emit(new String[] {id.replaceAll("(MICA:|:memorized:.*)", ""), id.replaceAll("(MICA:[^:]+:memorized:)", "")}, document);
+            }
+        });
+
+        mappers.put("memorized/allcount", mappers.get("memorized/all"));
+        reducers.put("memorized/allcount", countReducer);
+
+        mappers.put("mergegroups/all", new Mapper() {
+            public void map(Map<String, Object> document, Emitter emitter) {
+                String id = (String) document.get("_id");
+                if (id.matches("MICA:[^:]+:mergegroups:[^:]+$"))
+                    emitter.emit(new String[] {id.replaceAll("(MICA:|:mergegroups:.*)", ""), id.replaceAll("(MICA:[^:]+:mergegroups:)", "")}, document);
+            }
+        });
+
+        mappers.put("splits/all", new Mapper() {
+            public void map(Map<String, Object> document, Emitter emitter) {
+                String id = (String) document.get("_id");
+                if (id.matches("MICA:[^:]+:splits:[^:]+$"))
+                    emitter.emit(new String[] {id.replaceAll("(MICA:|:splits:.*)", ""), id.replaceAll("(MICA:[^:]+:splits:)", "")}, document);
+            }
+        });
+
+        mappers.put("tonechanges/all", new Mapper() {
+            public void map(Map<String, Object> document, Emitter emitter) {
+                String id = (String) document.get("_id");
+                if (id.matches("MICA:[^:]+:tonechanges:[^:]+$"))
+                    emitter.emit(new String[] {id.replaceAll("(MICA:|:tonechanges:.*)", ""), id.replaceAll("MICA:[^:]+:tonechanges:", "")}, document);
+            }
+        });
     }
 
     private void changeAllReplications(boolean start) {
@@ -329,6 +441,23 @@ public class Couch {
                     Database database = manager.getDatabase(database_name);
                     database.open();
                     dbs.put(database_name, database);	
+
+                    String version = "2";
+
+                    Iterator it = mappers.entrySet().iterator();
+                    while (it.hasNext()) {
+                        Map.Entry pairs = (Map.Entry)it.next();
+                        String name = (String) pairs.getKey();
+                        Mapper m = (Mapper) pairs.getValue();
+                        Reducer r = (Reducer) reducers.get(name); 
+                        Log.d(TAG, "Installing mapreduce: " + name);
+                        View v = database.getView(name);
+                        if (r != null) {
+                            v.setMapReduce(m, r, version);
+                        } else {
+                            v.setMap(m, version);
+                        }
+                    }
 
                     /*
                     PersistentCookieStore cookieStore = database.getPersistentCookieStore();
@@ -534,8 +663,12 @@ public class Couch {
 
     private void dumpError(Exception e) {
 	Log.e(TAG, "Error in Mica: " + e);
-	Log.e(TAG, e.getMessage());
-	Log.e(TAG, e.getLocalizedMessage());
+        String msg = e.getMessage();
+        if (msg != null)
+            Log.e(TAG, msg);
+        msg = e.getLocalizedMessage();
+        if (msg != null)
+            Log.e(TAG, msg);
 	Log.e(TAG, "" + e.getCause());
 	Log.e(TAG, Arrays.toString(e.getStackTrace()));
     }
@@ -802,43 +935,10 @@ public class Couch {
 	return v;
     }
     public Iterator<QueryRow> view(String dbname, String designDoc, String viewName, String parameters, String username) {
-//    public Iterator<QueryRow> view(String dbname, String designDoc, String viewName, String parameters) {
         try {
             Database database = (Database) dbs.get(dbname);
             String name = designDoc + "/" + viewName;
             View v = database.getExistingView(name);
-
-            if (v == null) {
-                Log.d(TAG, "view " + name + " not found. =(");
-		v = rebuildView(database, designDoc, viewName, false);
-		if (v == null) {
-		    return null;
-	        }
-            }
-
-            //Log.d(TAG, "View found: " + name);
-
-            if (v.isStale()) {
-                Log.d(TAG, "View is stale. Rebuilding and ReIndexing...");
-		v = rebuildView(database, designDoc, viewName, true);
-		if (v == null) {
-		    return null;
-	        }
-                Log.d(TAG, "Indexing complete.");
-            }
-
-            if (v.getReduce() == null) {
-                RevisionInternal rev = database.getDocumentWithIDAndRev(String.format("_design/%s", designDoc), null, EnumSet.noneOf(TDContentOptions.class));
-                Map<String,Object> views = (Map<String,Object>)rev.getProperties().get("views");
-                Map<String,Object> viewProps = (Map<String,Object>)views.get(viewName);
-                if (viewProps.get("reduce") != null) {
-                    Log.d(TAG, "Uh oh. This view really does have a reducer!!!. Couch is lying again. Need to file a bug.");
-                    v = compileView(database, name, viewProps);
-                    Log.d(TAG, "OK. Asserting that the liar is smacked:");
-                    assert(v.getReduce() != null);
-                }
-            }
-
             Query query = v.createQuery();
 
             if (parameters != null && parameters.length() > 0 && !(parameters.equals(""))) {
