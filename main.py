@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
-__version__ = "0.5.5"
+__version__ = "0.5.6"
 import kivy
 from kivy.app import App
 from kivy.uix.widget import Widget

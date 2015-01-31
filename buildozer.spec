@@ -13,7 +13,7 @@ package.domain = com.hinespot
 source.dir = .
 
 # (list) Source files to include (let empty to include all the files)
-source.include_exts = py,png,jpg,kv,atlas,crt,js,css,html,gif,ico,svg,eot,woff,ttf,csv,sql,mo
+source.include_exts = py,png,jpg,kv,atlas,crt,js,css,html,gif,ico,svg,eot,woff,ttf,csv,sql,mo,p
 
 # (list) Source files to exclude (let empty to not exclude anything)
 #source.exclude_exts = mica/params.py
