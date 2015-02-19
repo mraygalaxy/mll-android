@@ -433,7 +433,6 @@ public class Couch {
     public boolean exists(String database_name) throws CouchbaseLiteException {
 	return manager.getExistingDatabase(database_name) != null;
     }
-
     public int start(String database_name) throws IOException, CouchbaseLiteException {
         try {
                 if (dbs.get(database_name) == null) {
@@ -474,6 +473,10 @@ public class Couch {
         }
 
 	return -1;
+    }
+
+    public String files_go_where() {
+        return manager.getDirectory() + "/";
     }
 
     public void stop_replication(String database_name) {

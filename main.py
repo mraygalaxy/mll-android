@@ -25,7 +25,10 @@ print "Starting up."
 from params import parameters
 from mica.mica import go, second_splash
 from mica.common import pre_init_localization
+from sys import settrace as sys_settrace
                  
+tree = []
+
 cwd = re.compile(".*\/").search(os.path.realpath(__file__)).group(0)
 
 sys.path = [cwd, cwd + "mica/"] + sys.path
@@ -39,10 +42,26 @@ CouchBase = autoclass("org.renpy.android.Couch")
 MobileInternet = autoclass("org.renpy.android.Internet")
 
 print("Loading mica services")
+print("We are located at: " + cwd)
 
 log = MLog(activity)
 mobile_internet = MobileInternet(activity)
 
+def tracefunc(frame, event, arg, indent=[0]):
+    if event == "call":
+        tree.append(frame.f_code.co_name)
+        name = ".".join(tree)
+        indent[0] += 1
+        log.debug(String("-" * indent[0] + "> call function: " + name))
+    elif event == "return":
+        name = ".".join(tree)
+        indent[0] -= 1
+        log.debug(String("<" + "-" * indent[0] + " exit function: " + name))
+        del tree[-1]
+
+    return tracefunc
+
+#sys_settrace(tracefunc)
 log.debug(String("Loading certificate file for couch"))
 
 fh = codecs.open(parameters["cert"], 'r', "utf-8")
@@ -51,6 +70,9 @@ fh.close()
 
 log.debug(String("Starting couchbase"))
 couch = CouchBase(String(parameters["local_username"]), String(parameters["local_password"]), parameters["local_port"], String(cert), activity)
+scratch = couch.files_go_where()
+log.debug(String("Files go here: " + str(scratch) + " " + str(type(scratch))))
+parameters["scratch"] = str(scratch) + "/"
 pre_init_localization(couch.get_language(), log)
 port = couch.start(String(parameters["local_database"]))
 
