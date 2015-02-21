@@ -576,7 +576,10 @@ public class Couch {
                 }
 
                 updateView(type + "stat('" + String.format( "%.1f", percent ) + "');");
-            }
+            } else if(replication.getStatus() == Replication.ReplicationStatus.REPLICATION_IDLE && type.equals("pull")) {
+		pull_percent = 100.0;
+		updateView(type + "stat('100');");
+	    }
         }
     }
 
