@@ -330,11 +330,20 @@ public class Couch {
                 }
             }
         });
+
         mappers.put("stories/all", new Mapper() {        
             public void map(Map<String, Object> document, Emitter emitter) {
                 String id = (String) document.get("_id");
                 if (id.matches("MICA:[^:]+:stories:[^:]+$"))
                     emitter.emit(new String[] {id.replaceAll("(MICA:|:stories:.*)", ""), (String) document.get("name")}, document);
+            }
+        });
+
+        mappers.put("chats/all", new Mapper() {        
+            public void map(Map<String, Object> document, Emitter emitter) {
+                String id = (String) document.get("_id");
+                if (id.matches("MICA:[^:]+:stories:chat;[^;]+;[^;]+;[^;:]+$"))
+                    emitter.emit(new String[] {id.replaceAll("(MICA:|:stories:.*)", ""), id.replaceAll("(MICA:[^:]+:stories:chat;|;[^;]+;[^;]+$)", ""), id.replaceAll("(MICA:[^:]+:stories:chat;[^;]+;[^;]+;)", "")}, document);
             }
         });
 
