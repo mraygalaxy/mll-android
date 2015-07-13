@@ -33,7 +33,8 @@ cwd = re.compile(".*\/").search(os.path.realpath(__file__)).group(0)
 
 sys.path = [cwd, cwd + "mica/"] + sys.path
 
-WebView = autoclass('android.webkit.WebView')
+#WebView = autoclass('android.webkit.WebView')
+WebView = autoclass("org.renpy.android.MyWebView")
 WebViewClient = autoclass('android.webkit.WebViewClient')
 activity = autoclass('org.renpy.android.PythonActivity').mActivity
 String = autoclass('java.lang.String')
@@ -92,12 +93,16 @@ class Wv(Widget):
         log.debug(String("first clock scheduled"))
         self.wu = False
         Window.bind(on_keyboard=self.disable_back_button_death)
+        Window.bind(on_key_down=self.on_keyboard_up)
 
     def disable_back_button_death(self,window,key,*largs) :
         if key == 27 :
             log.debug(String("back button death is stupid. not doing it."))
             return True
         log.debug(String("Ignoring other buttons: " + str(key)))
+
+    def on_keyboard_up(self, *args) :
+        log.debug(String("Got key: " + str(args)))
     
     @run_on_ui_thread
     def go(self, *args) :

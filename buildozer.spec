@@ -98,7 +98,7 @@ android.add_jars = %(source.dir)s/jars/couchbase-lite-java-core-1.0.2.jar,%(sour
 
 # (list) List of Java files to add to the android project (can be java or a
 # directory containing the files)
-android.add_src = %(source.dir)s/Couch.java,%(source.dir)s/MLog.java,%(source.dir)s/Internet.java
+android.add_src = %(source.dir)s/Couch.java,%(source.dir)s/MLog.java,%(source.dir)s/Internet.java,%(source.dir)s/MyWebView.java
 
 # (str) python-for-android branch to use, if not master, useful to try
 # not yet merged features.
