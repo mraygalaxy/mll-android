@@ -676,6 +676,57 @@ public class Couch {
         return 0;
     }
 
+    public String get_attachment_meta(String dbname, String name, String filename) throws IOException {
+        try {
+            Database database = (Database) dbs.get(dbname);
+            Document doc = database.getExistingDocument(name);
+            Log.d(TAG, "Getting size of document: " + name + " named " + filename);
+            if (doc == null) {
+                Log.d(TAG, "No such document: " + name + ". Cannot get attachment.");
+                return null;
+            } 
+
+            Revision rev = doc.getCurrentRevision();
+            RevisionInternal irev = database.getDocumentWithIDAndRev(name, rev.getId(), EnumSet.noneOf(TDContentOptions.class));
+            long seq = irev.getSequence();
+            Attachment att = database.getAttachmentForSequence(seq, filename);
+            
+            if (rev.getAttachment(filename) == null) {
+            	Log.d(TAG, "It's a good thing we're not returning null for our attachement. =)");
+            }
+
+            Map<String,Object> iprops = new HashMap<String, Object>(att.getMetadata());
+            long len = att.getLength();
+            if (len == 0) {
+                Log.d(TAG, "We have to do it the hard way. =(");
+                InputStream temp = att.getContent();
+                if (temp == null) {
+                    Log.d(TAG, "ERROR: This better not happen, or we're screwed.");
+                } else {
+                    try {
+                        int avail = 0;
+                        
+                        do {
+                            avail = temp.available();
+                            if (avail > 0) {
+                                    temp.skip(avail);
+                                    len += avail;
+                            }
+                        } while(temp.available() > 0);
+                    } catch(IOException ex) {
+                        Log.d(TAG, "ERROR: Skip is too big!!!!!!!!!!!!!!!!!!!!!!");
+                    }
+                    temp.close();
+                }
+            }
+            iprops.put("length", len);
+            return toJSON(iprops);
+        } catch(Exception e) {
+            dumpError(e);
+            return null;
+        }
+    }
+
     private void dumpError(Exception e) {
 	Log.e(TAG, "Error in Mica: " + e);
         String msg = e.getMessage();
