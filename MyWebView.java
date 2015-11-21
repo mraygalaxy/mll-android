@@ -5,6 +5,9 @@ import android.app.Activity;
 import android.view.KeyEvent;
 import android.util.Log;
 import android.content.Context;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.BaseInputConnection;
+import android.view.inputmethod.InputConnection;
  
 public class MyWebView extends WebView {
      
@@ -13,14 +16,24 @@ public class MyWebView extends WebView {
         Log.d("MICA", "MyWebview: Initialized MyWebView");
     }
 
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-        Log.d("MICA", "MyWebView keyup got: " + keyCode);
-        return false;
+    @Override
+    public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
+        return new BaseInputConnection(this, false); //this is needed for #dispatchKeyEvent() to be notified.
     }
 
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        Log.d("MICA", "MyWebView keydown got: " + keyCode);
-        return false;
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        boolean dispatchFirst = super.dispatchKeyEvent(event);
+	int keyCode = event.getKeyCode();
+        if (event.getAction() == KeyEvent.ACTION_UP) {
+            switch (keyCode) {
+                case KeyEvent.KEYCODE_ENTER:
+		    Log.d("MICA", "MyWebView ENTER key!");
+		    //loadUrl("javascript: chatEnter();");
+                    break;
+            }
+	}
+        return dispatchFirst;
     }
  
 }

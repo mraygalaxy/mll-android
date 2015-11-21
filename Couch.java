@@ -104,7 +104,7 @@ public class Couch {
     private Manager manager;
     private android.content.Context context;
     private LiteListener listener = null;
-    private Thread listenerThread;
+    private Thread listenerThread = null;
     private HashMap<String, Object> dbs;
     private HashMap<String, Object> pulls;
     private HashMap<String, Object> pushes;
@@ -213,11 +213,12 @@ public class Couch {
         }
     }
 
-    public Couch(String username, String password, int suggestedListenPort, String cert, Activity activity) throws IOException {
-        Log.d(TAG, "Replication status options: username " + username + " active " + Replication.ReplicationStatus.REPLICATION_ACTIVE +
+    public Couch(String cert, Activity activity) throws IOException {
+        Log.d(TAG, "Replication status options: active " + Replication.ReplicationStatus.REPLICATION_ACTIVE +
 		   " idle " + Replication.ReplicationStatus.REPLICATION_IDLE +
  	           " offline " + Replication.ReplicationStatus.REPLICATION_OFFLINE +
 	           " stopped " + Replication.ReplicationStatus.REPLICATION_STOPPED);
+        cert_path = cert;
         try {
             dbs = new HashMap<String, Object>();
             pulls = new HashMap<String, Object>();
@@ -254,13 +255,6 @@ public class Couch {
                 Log.d(TAG, "Manager has databases: " + dbname);
             }
             Log.d(TAG, "Finished listing databases.");
-
-	    Log.d(TAG, "Trying to start listener on port: " + suggestedListenPort);
-	    Credentials creds = new Credentials(username, password);
-	    listener = new LiteListener(manager, suggestedListenPort, creds);
-	    listenerThread = new Thread(listener);
-	    //listenerThread.start();
-	    cert_path = cert;
 
 	    wifi_receiver = new BroadcastReceiver()
 		{
@@ -442,6 +436,26 @@ public class Couch {
     public boolean exists(String database_name) throws CouchbaseLiteException {
 	return manager.getExistingDatabase(database_name) != null;
     }
+
+    public int listen(String username, String password, int suggestedListenPort) {
+        try {
+            if (listener == null || listenerThread == null) {
+                Log.d(TAG, "Trying to start listener on port: " + suggestedListenPort);
+                Credentials creds = new Credentials(username, password);
+                listener = new LiteListener(manager, suggestedListenPort, creds);
+                listenerThread = new Thread(listener);
+                listenerThread.start();
+            } else {
+                Log.d(TAG, "Listener already running.");
+            }
+            return listener.getListenPort();
+        } catch (Exception e) {
+            dumpError(e);
+        }
+
+	return -1;
+    }
+
     public int start(String database_name) throws IOException, CouchbaseLiteException {
         try {
                 if (dbs.get(database_name) == null) {
@@ -476,7 +490,7 @@ public class Couch {
                 }
 
 		Log.d(TAG, "We're ready to go!");
-		return listener.getListenPort();
+                return 0;
         } catch (Exception e) {
 		dumpError(e);
         }

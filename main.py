@@ -70,7 +70,8 @@ cert = fh.read()
 fh.close()
 
 log.debug(String("Starting couchbase"))
-couch = CouchBase(String(parameters["local_username"]), String(parameters["local_password"]), parameters["local_port"], String(cert), activity)
+#String(parameters["local_username"]), String(parameters["local_password"]), parameters["local_port"], 
+couch = CouchBase(String(cert), activity)
 scratch = couch.files_go_where()
 log.debug(String("Files go here: " + str(scratch) + " " + str(type(scratch))))
 parameters["scratch"] = str(scratch) + "/"
@@ -97,6 +98,8 @@ class Wv(Widget):
 
     def disable_back_button_death(self,window,key,*largs) :
         if key == 27 :
+            log.debug(String("Sending back request."))
+            couch.updateView(String("window.history.back();"))
             log.debug(String("back button death is stupid. not doing it."))
             return True
         log.debug(String("Ignoring other buttons: " + str(key)))
@@ -126,7 +129,8 @@ class Wv(Widget):
     @run_on_ui_thread
     def account(self) :
         log.debug(String("Loading account settings."))
-        self.webview.loadUrl('http://localhost:10000/account')
+        #self.webview.loadUrl('http://localhost:10000/account')
+        couch.updateView(String("$.mobile.navigate('#account');"))
 
     @run_on_ui_thread
     def create_webview(self, *args):
