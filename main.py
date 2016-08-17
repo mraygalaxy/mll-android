@@ -144,6 +144,8 @@ class Wv(Widget):
         settings.setJavaScriptEnabled(True)
         settings.setBuiltInZoomControls(True)
         settings.setAllowUniversalAccessFromFileURLs(True)
+        settings.setAllowFileAccess(True)
+        settings.setDomStorageEnabled(True);
         #settings.setCacheMode(settings.LOAD_NO_CACHE);
 
         log.debug(String("setting webview client"))

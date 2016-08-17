@@ -13,7 +13,7 @@ package.domain = com.hinespot
 source.dir = .
 
 # (list) Source files to include (let empty to include all the files)
-source.include_exts = py,png,jpg,kv,atlas,crt,js,css,html,gif,ico,svg,eot,woff,ttf,csv,sql,mo,p
+source.include_exts = py,png,jpg,kv,atlas,crt,js,css,html,gif,ico,svg,eot,woff,woff2,ttf,csv,sql,mo,p,wav
 
 # (list) Source files to exclude (let empty to not exclude anything)
 #source.exclude_exts = mica/params.py
@@ -94,7 +94,10 @@ android.p4a_dir = %(source.dir)s/../../../../python-for-android
 
 #android.add_jars = %(source.dir)s/jars/couchbase-lite-java-core-1.0.2.jar,%(source.dir)s/jars/couchbase-lite-android-1.0.2.jar,%(source.dir)s/jars/couchbase-lite-java-javascript-1.0.2.jar,%(source.dir)s/jars/couchbase-lite-java-listener-1.0.2.jar,%(source.dir)s/jars/rhino-1.7R3.jar,%(source.dir)s/jars/commons-io-2.0.1.jar,%(source.dir)s/jars/jackson-core-asl-1.9.2.jar,%(source.dir)s/jars/jackson-mapper-asl-1.9.2.jar,%(source.dir)s/jars/servlet-2-3.jar,%(source.dir)s/jars/webserver-2-3.jar
 #android.add_jars = %(source.dir)s/jars/couchbase-lite-java-core-custom.jar,%(source.dir)s/jars/couchbase-lite-android-custom.jar,%(source.dir)s/jars/couchbase-lite-java-javascript-1.0.2.jar,%(source.dir)s/jars/couchbase-lite-java-listener-1.0.2.jar,%(source.dir)s/jars/rhino-1.7R3.jar,%(source.dir)s/jars/commons-io-2.0.1.jar,%(source.dir)s/jars/jackson-core-asl-1.9.2.jar,%(source.dir)s/jars/jackson-mapper-asl-1.9.2.jar,%(source.dir)s/jars/servlet-2-3.jar,%(source.dir)s/jars/webserver-2-3.jar
-android.add_jars = %(source.dir)s/jars/couchbase-lite-java-core-1.0.2.jar,%(source.dir)s/jars/couchbase-lite-android-1.0.2.jar,%(source.dir)s/jars/couchbase-lite-java-javascript-1.0.2.jar,%(source.dir)s/jars/couchbase-lite-java-listener-1.0.2.jar,%(source.dir)s/jars/rhino-1.7R3.jar,%(source.dir)s/jars/commons-io-2.0.1.jar,%(source.dir)s/jars/jackson-core-asl-1.9.2.jar,%(source.dir)s/jars/jackson-mapper-asl-1.9.2.jar,%(source.dir)s/jars/servlet-2-3.jar,%(source.dir)s/jars/webserver-2-3.jar
+#android.add_jars = %(source.dir)s/jars/couchbase-lite-java-core-1.0.2.jar,%(source.dir)s/jars/couchbase-lite-android-1.0.2.jar,%(source.dir)s/jars/couchbase-lite-java-javascript-1.0.2.jar,%(source.dir)s/jars/couchbase-lite-java-listener-1.0.2.jar,%(source.dir)s/jars/rhino-1.7R3.jar,%(source.dir)s/jars/commons-io-2.0.1.jar,%(source.dir)s/jars/jackson-core-asl-1.9.2.jar,%(source.dir)s/jars/jackson-mapper-asl-1.9.2.jar,%(source.dir)s/jars/servlet-2-3.jar,%(source.dir)s/jars/webserver-2-3.jar
+#android.add_jars = %(source.dir)s/jars/couchbase-lite-java-core-1.0.2.jar,%(source.dir)s/jars/couchbase-lite-android-1.0.2.jar,%(source.dir)s/jars/couchbase-lite-java-javascript-1.0.2.jar,%(source.dir)s/jars/couchbase-lite-java-listener-1.0.0-72-CORS.jar,%(source.dir)s/jars/rhino-1.7R3.jar,%(source.dir)s/jars/commons-io-2.0.1.jar,%(source.dir)s/jars/jackson-core-asl-1.9.2.jar,%(source.dir)s/jars/jackson-mapper-asl-1.9.2.jar,%(source.dir)s/jars/servlet-2-3.jar,%(source.dir)s/jars/webserver-2-3.jar
+android.add_jars = %(source.dir)s/jars/couchbase-lite-java-core-1.3.0.jar,%(source.dir)s/jars/couchbase-lite-java-javascript-1.3.0.jar,%(source.dir)s/jars/couchbase-lite-java-listener-1.3.0.jar,%(source.dir)s/jars/rhino-1.7R3.jar,%(source.dir)s/jars/commons-io-2.0.1.jar,%(source.dir)s/jars/jackson-core-2.5.0.jar,%(source.dir)s/jars/jackson-annotations-2.5.0.jar,%(source.dir)s/jars/jackson-databind-2.5.0.jar,%(source.dir)s/jars/servlet-2-3.jar,%(source.dir)s/jars/webserver-2-3.jar,%(source.dir)s/jars/stateless4j-2.4.0.jar,%(source.dir)s/jars/okio-1.8.0.jar,%(source.dir)s/jars/okhttp-3.3.1.jar,%(source.dir)s/jars/couchbase-lite-android-1.3.0.jar,%(source.dir)s/jars/couchbase-lite-android-forestdb-1.3.0.jar,%(source.dir)s/jars/couchbase-lite-android-sqlcipher-1.3.0.jar,%(source.dir)s/jars/couchbase-lite-android-sqlite-custom-1.3.0.jar
+
 
 # (list) List of Java files to add to the android project (can be java or a
 # directory containing the files)
@@ -115,7 +118,10 @@ android.add_src = %(source.dir)s/Couch.java,%(source.dir)s/MLog.java,%(source.di
 android.manifest.intent_filters = intent_filters.xml
 
 # (list) Android additionnal libraries to copy into libs/armeabi
-android.add_libs_armeabi = %(source.dir)s/jars/libcom_couchbase_touchdb_TDCollateJSON.so,%(source.dir)s/jars/libcom_couchbase_touchdb_RevCollator.so
+android.add_libs_armeabi = %(source.dir)s/jars/libcbljavakey.so,%(source.dir)s/jars/libcbljavasqlcipher.so,%(source.dir)s/jars/libcbljavasqlitecustom.so,%(source.dir)s/jars/libsqlite3.so,%(source.dir)s/jars/libsqlcipher.so,%(source.dir)s/jars/libCouchbaseLiteJavaForestDB.so,%(source.dir)s/jars/libcom_couchbase_touchdb_TDCollateJSON.so,%(source.dir)s/jars/libcom_couchbase_touchdb_RevCollator.so
+#android.add_libs_armeabi = %(source.dir)s/jars/libcom_couchbase_touchdb_TDCollateJSON.so,%(source.dir)s/jars/libcom_couchbase_touchdb_RevCollator.so
+
+
 #android.add_libs_armeabi_v7a = %(source.dir)s/jars/armeabi-v7a/libcom_couchbase_touchdb_TDCollateJSON.so,%(source.dir)s/jars/armeabi-v7a/libcom_couchbase_touchdb_RevCollator.so
 #android.add_libs_x86 = %(source.dir)s/jars/x86/libcom_couchbase_touchdb_TDCollateJSON.so,%(source.dir)s/jars/x86/libcom_couchbase_touchdb_RevCollator.so
 #android.add_libs_mips = %(source.dir)s/jars/mips/libcom_couchbase_touchdb_TDCollateJSON.so,%(source.dir)s/jars/mips/libcom_couchbase_touchdb_RevCollator.so

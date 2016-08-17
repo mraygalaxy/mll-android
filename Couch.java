@@ -24,11 +24,13 @@ import com.couchbase.lite.android.AndroidNetworkReachabilityManager;
 import com.couchbase.lite.NetworkReachabilityManager;
 import com.couchbase.lite.CouchbaseLiteException;
 import com.couchbase.lite.Database;
+import com.couchbase.lite.DatabaseOptions;
 import com.couchbase.lite.Manager;
 import com.couchbase.lite.View;
 import com.couchbase.lite.Status;
 import com.couchbase.lite.Revision;
 import com.couchbase.lite.Attachment;
+import com.couchbase.lite.internal.AttachmentInternal;
 import com.couchbase.lite.Query;
 import com.couchbase.lite.QueryRow;
 import com.couchbase.lite.QueryEnumerator;
@@ -42,12 +44,12 @@ import com.couchbase.lite.auth.AuthenticatorFactory;
 import com.couchbase.lite.auth.BasicAuthenticator;
 import com.couchbase.lite.support.CouchbaseLiteHttpClientFactory;
 import com.couchbase.lite.support.HttpClientFactory;
-import com.couchbase.lite.support.PersistentCookieStore;
+import com.couchbase.lite.support.PersistentCookieJar;
 import com.couchbase.lite.router.Router;
 import com.couchbase.lite.Document;
 import com.couchbase.lite.UnsavedRevision;
 import com.couchbase.lite.internal.RevisionInternal;
-import com.couchbase.lite.Database.TDContentOptions;
+//import com.couchbase.lite.Database.TDContentOptions;
 import com.couchbase.lite.Mapper;
 import com.couchbase.lite.Emitter;
 import com.couchbase.lite.Reducer;
@@ -88,13 +90,15 @@ import javax.net.ssl.X509TrustManager;
 import javax.net.ssl.SSLContext;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.net.InetAddress;
 
-import org.apache.http.conn.ssl.SSLSocketFactory;
+//import org.apache.http.conn.ssl.SSLSocketFactory;
+import javax.net.ssl.SSLSocketFactory;
 import org.apache.commons.io.IOUtils;
 
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
-import org.codehaus.jackson.type.TypeReference;
+//import org.codehaus.jackson.map.ObjectMapper;
+//import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
+//import org.codehaus.jackson.type.TypeReference;
 
 public class Couch {
 
@@ -113,6 +117,7 @@ public class Couch {
     private HashMap<String, Object> seeds;
     private HashMap<String, Mapper> mappers;
     private HashMap<String, Reducer> reducers;
+    private DatabaseOptions options = null;
 
     String cert_path = null;
     private BroadcastReceiver wifi_receiver;
@@ -137,7 +142,7 @@ public class Couch {
          SSLContext sslContext = SSLContext.getInstance("TLS");
 
          public MySSLSocketFactory(KeyStore truststore) throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException, UnrecoverableKeyException {
-             super(truststore);
+             super();
 
              TrustManager tm = new X509TrustManager() {
                  public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
@@ -154,12 +159,10 @@ public class Couch {
              sslContext.init(null, new TrustManager[] { tm }, null);
          }
 
-         @Override
          public Socket createSocket(Socket socket, String host, int port, boolean autoClose) throws IOException, UnknownHostException {
              return sslContext.getSocketFactory().createSocket(socket, host, port, autoClose);
          }
 
-         @Override
          public Socket createSocket() throws IOException {
              return sslContext.getSocketFactory().createSocket();
          }
@@ -174,6 +177,22 @@ public class Couch {
         public Socket createSocket(String s, int i) throws IOException {
             return sslContext.getSocketFactory().createSocket(s, i);
         }
+
+	public Socket createSocket(InetAddress arg0, int arg1) throws IOException {
+		return sslContext.getSocketFactory().createSocket(arg0, arg1);
+	}
+
+	public Socket createSocket(String arg0, int arg1, InetAddress arg2, int arg3)
+			throws IOException, UnknownHostException {
+		return sslContext.getSocketFactory().createSocket(arg0, arg1, arg2, arg3);
+	}
+
+	/*
+	*/
+	public Socket createSocket(InetAddress arg0, int arg1, InetAddress arg2,
+			int arg3) throws IOException {
+		return sslContext.getSocketFactory().createSocket(arg0, arg1, arg2, arg3);
+	}
     }
  
     private void initializeSecurity(CouchbaseLiteHttpClientFactory factory) throws IOException, CertificateException, KeyStoreException, NoSuchAlgorithmException, KeyManagementException, InterruptedException, UnrecoverableKeyException {
@@ -247,6 +266,14 @@ public class Couch {
             //Manager.enableLogging(com.couchbase.lite.util.Log.TAG_BLOB_STORE, com.couchbase.lite.util.Log.VERBOSE);
             //Manager.enableLogging(com.couchbase.lite.util.Log.TAG_CHANGE_TRACKER, com.couchbase.lite.util.Log.VERBOSE);
             manager = new Manager(mc, Manager.DEFAULT_OPTIONS);
+            options = new DatabaseOptions();
+            options.setCreate(true);
+	    /* Setting this option does work, and the performance improvements are potentially very exciting,
+             * but it crashes a lot, so. Let's just wait until next year.
+             */
+            //options.setStorageType(Manager.FORESTDB_STORAGE);
+            options.setStorageType(Manager.SQLITE_STORAGE);
+
             Log.d(TAG, "Trying to set compiler.");
             View.setCompiler(new JavaScriptViewCompiler());
             Log.d(TAG, "Manager stores database here: " + manager.getDirectory());
@@ -407,6 +434,14 @@ public class Couch {
                     emitter.emit(new String[] {id.replaceAll("(MICA:|:tonechanges:.*)", ""), id.replaceAll("MICA:[^:]+:tonechanges:", "")}, document);
             }
         });
+
+        mappers.put("sessions/all", new Mapper() {
+            public void map(Map<String, Object> document, Emitter emitter) {
+                String id = (String) document.get("_id");
+                if (id.matches("MICA:sessions:.*$"))
+                    emitter.emit(new String[] {id.replaceAll("MICA:sessions:", "")}, document);
+            }
+        });
     }
 
     private void changeAllReplications(boolean start) {
@@ -460,8 +495,10 @@ public class Couch {
         try {
                 if (dbs.get(database_name) == null) {
                     Log.d(TAG, "Trying to open database: " + database_name);
-                    Database database = manager.getDatabase(database_name);
-                    database.open();
+                    //Database database = manager.getDatabase(database_name);
+                    Database database = manager.openDatabase(database_name, options);
+                    //Database database = manager.getDatabase(database_name, options);
+                    database.open(options);
                     dbs.put(database_name, database);	
 
                     String version = "2";
@@ -673,7 +710,7 @@ public class Couch {
                 }
             });
 
-            Log.d(TAG, "replication starting....");
+            Log.d(TAG, "replication starting.... with parameters: " + filterparams);
             Map<String,Object> params = toJava(filterparams);
             pull.setFilter((String) params.get("name"));
             params.remove("name");
@@ -701,19 +738,21 @@ public class Couch {
             } 
 
             Revision rev = doc.getCurrentRevision();
-            RevisionInternal irev = database.getDocumentWithIDAndRev(name, rev.getId(), EnumSet.noneOf(TDContentOptions.class));
-            long seq = irev.getSequence();
-            Attachment att = database.getAttachmentForSequence(seq, filename);
+            //RevisionInternal irev = database.getDocumentWithIDAndRev(name, rev.getId(), EnumSet.noneOf(TDContentOptions.class));
+	    RevisionInternal irev = database.getDocument(name, rev.getId(), true);
+            //long seq = irev.getSequence();
+            //Attachment att = database.getAttachmentForSequence(seq, filename);
+            AttachmentInternal att = database.getAttachment(irev, filename);
             
             if (rev.getAttachment(filename) == null) {
             	Log.d(TAG, "It's a good thing we're not returning null for our attachement. =)");
             }
 
-            Map<String,Object> iprops = new HashMap<String, Object>(att.getMetadata());
+            Map<String,Object> iprops = new HashMap<String, Object>(att.asStubDictionary());
             long len = att.getLength();
             if (len == 0) {
                 Log.d(TAG, "We have to do it the hard way. =(");
-                InputStream temp = att.getContent();
+                InputStream temp = att.getContentInputStream();
                 if (temp == null) {
                     Log.d(TAG, "ERROR: This better not happen, or we're screwed.");
                 } else {
@@ -863,10 +902,12 @@ public class Couch {
             Revision rev = doc.getCurrentRevision();
             Attachment att = rev.getAttachment(filename);
             if (att == null) {
-            	RevisionInternal irev = database.getDocumentWithIDAndRev(name, rev.getId(), EnumSet.noneOf(TDContentOptions.class));
-            	long seq = irev.getSequence();
-            	att = database.getAttachmentForSequence(seq, filename);
-            	if (att == null) {
+            	//RevisionInternal irev = database.getDocumentWithIDAndRev(name, rev.getId(), EnumSet.noneOf(TDContentOptions.class));
+	        RevisionInternal irev = database.getDocument(name, rev.getId(), true);
+            	//long seq = irev.getSequence();
+            	//att = database.getAttachmentForSequence(seq, filename);
+		AttachmentInternal atti = database.getAttachment(irev, filename);
+            	if (atti == null) {
             		Log.e(TAG, "Document: " + name + " has no such attachment to send to path: " + filename);
             		return null;
             	}
@@ -955,7 +996,8 @@ public class Couch {
         if(force || view == null || view.getMap() == null) {
             // No TouchDB view is defined, or it hasn't had a map block assigned;
             // see if there's a CouchDB view definition we can compile:
-            RevisionInternal rev = db.getDocumentWithIDAndRev(String.format("_design/%s", designDoc), null, EnumSet.noneOf(TDContentOptions.class));
+            //RevisionInternal rev = db.getDocumentWithIDAndRev(String.format("_design/%s", designDoc), null, EnumSet.noneOf(TDContentOptions.class));
+	    RevisionInternal rev = db.getDocument(String.format("_design/%s", designDoc), null, true);
             if(rev == null) {
                 return new Status(Status.NOT_FOUND);
             }
@@ -1006,7 +1048,7 @@ public class Couch {
 	    Log.d(TAG, "View pulled in from disk " + name + ".");
 	    v = database.getExistingView(name);
 	    assert(v != null);
-	    assert(v.getViewId() > 0);
+	    //assert(v.getViewId() > 0);
 	} else {
 	    Log.d(TAG, "Could not pull in view from disk: " + status);
 	    return null;
