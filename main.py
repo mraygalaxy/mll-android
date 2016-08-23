@@ -76,11 +76,13 @@ scratch = couch.files_go_where()
 log.debug(String("Files go here: " + str(scratch) + " " + str(type(scratch))))
 parameters["scratch"] = str(scratch) + "/"
 pre_init_localization(couch.get_language(), log)
-port = couch.start(String(parameters["local_database"]))
+for db in [parameters["local_database"], "sessiondb", "files"] :
+    log.debug(String("Trying to start DB: " + db))
+    port = couch.start(String(db))
 
-if port == -1 :
-    log.error(String("AAAHHHHHH. FAILURE."))
-    log.debug(String("Trying to start replication"))
+    if port == -1 :
+        log.error(String("AAAHHHHHH. FAILURE."))
+        log.debug(String("Trying to start replication"))
 
 parameters["couch"] = couch
 parameters["mobileinternet"] = mobile_internet

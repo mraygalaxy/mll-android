@@ -469,7 +469,7 @@ public class Couch {
     }
 
     public boolean exists(String database_name) throws CouchbaseLiteException {
-	return manager.getExistingDatabase(database_name) != null;
+        return manager.getExistingDatabase(database_name) != null;
     }
 
     public int listen(String username, String password, int suggestedListenPort) {
@@ -495,9 +495,7 @@ public class Couch {
         try {
                 if (dbs.get(database_name) == null) {
                     Log.d(TAG, "Trying to open database: " + database_name);
-                    //Database database = manager.getDatabase(database_name);
                     Database database = manager.openDatabase(database_name, options);
-                    //Database database = manager.getDatabase(database_name, options);
                     database.open(options);
                     dbs.put(database_name, database);	
 
@@ -543,13 +541,13 @@ public class Couch {
 	if (pushes.get(database_name) != null) {
 	     Replication push = (Replication) pushes.remove(database_name);
 	     push.stop();
-             Log.d(TAG, "Stopped push replication.");
+             Log.d(TAG, "Stopped push replication: " + database_name);
         }
 
 	if (pulls.get(database_name) != null) {
 	     Replication pull = (Replication) pulls.remove(database_name);
 	     pull.stop();
-             Log.d(TAG, "Stopped pull replication.");
+             Log.d(TAG, "Stopped pull replication: " + database_name);
         }
     }
 
@@ -620,16 +618,16 @@ public class Couch {
             if (total != 0) {
                 final double percent = (double) Math.min(100.0, (double) processed / (double) Math.max(1, total) * 100.0);
                 if (type.equals("pull")) {
-                    //Log.d(TAG, "(pull) " + type + " setting pull percent to " + percent + " from " + pull_percent);
+                    Log.d(TAG, "(pull) " + type + " setting pull percent to " + percent + " from " + pull_percent);
                     if (pull_percent == percent) {
-                        //Log.d(TAG, type + " no change.");
+                        Log.d(TAG, type + " no change.");
                         return;
                     }
                     pull_percent = percent;
                 } else {
-                    //Log.d(TAG, "(push) " + type + " setting push percent to " + percent + " from " + push_percent);
+                    Log.d(TAG, "(push) " + type + " setting push percent to " + percent + " from " + push_percent);
                     if (push_percent == percent) {
-                        //Log.d(TAG, type + " no change.");
+                        Log.d(TAG, type + " no change.");
                         return;
                     }
                     push_percent = percent;
@@ -644,13 +642,16 @@ public class Couch {
     }
 
     public int replicate(String database_name, String server, boolean force, String filterparams) {
-        Log.d(TAG, "Checking for old replications...");
+        boolean nopush = false;
+        if (database_name != "mica")
+            nopush = true;
+        Log.d(TAG, "Checking for old replications..." + " db " + database_name);
 
         Log.d(TAG, "Parameters: " + database_name + " " + server + " " + force + " " + filterparams);
-	if (pushes.get(database_name) != null || pulls.get(database_name) != null) {
+        if (pushes.get(database_name) != null || pulls.get(database_name) != null) {
             Log.d(TAG, "Database " + database_name + " is already replicating.");
-	    return 0;
-	}
+            return 0;
+        }
 
         Log.d(TAG, "Constructing URL...");
 
@@ -716,7 +717,9 @@ public class Couch {
             params.remove("name");
             pull.setFilterParams(params);
             pull.start();
-            push.start();
+            if (!nopush) {
+                push.start();
+            }
             pulls.put(database_name, pull);
             pushes.put(database_name, push);
         } catch (Exception e) {
@@ -731,7 +734,7 @@ public class Couch {
         try {
             Database database = (Database) dbs.get(dbname);
             Document doc = database.getExistingDocument(name);
-            Log.d(TAG, "Getting size of document: " + name + " named " + filename);
+            Log.d(TAG, "Getting size of document: " + name + " named " + filename + " db " + dbname);
             if (doc == null) {
                 Log.d(TAG, "No such document: " + name + ". Cannot get attachment.");
                 return null;
@@ -805,7 +808,7 @@ public class Couch {
 	    
             Database database = (Database) dbs.get(dbname);
             Document document = database.getDocument(name);
-	    Log.d(TAG, "Want to put to key " + name + " with a length: " + json.length());
+	    Log.d(TAG, "Want to put to key " + name + " with a length: " + json.length() + " db " + dbname);
             Map<String, Object> properties = toJava(json);
 	    document.putProperties(properties);
 	    Log.d(TAG, "Revision committed for key " + name);
@@ -863,7 +866,7 @@ public class Couch {
         try {
             Database database = (Database) dbs.get(dbname);
             Document doc = database.getExistingDocument(name);
-            //Log.d(TAG, "Looking up attachment from document: " + name + " named " + filename);
+            Log.d(TAG, "Looking up attachment from document: " + name + " named " + filename + " db " + dbname);
             if (doc == null) {
                 Log.d(TAG, "No such document: " + name + ". Cannot get attachment.");
                 return null;
@@ -892,8 +895,8 @@ public class Couch {
     public String get_attachment_to_path(String dbname, String name, String filename, String path) throws IOException {
         try {
             Database database = (Database) dbs.get(dbname);
+            Log.d(TAG, "Looking up attachment from document: " + name + " named " + filename + " db " + dbname);
             Document doc = database.getExistingDocument(name);
-            Log.d(TAG, "Looking up attachment from document: " + name + " named " + filename);
             if (doc == null) {
                 Log.e(TAG, "No such document: " + name + ". Cannot get attachment to send to path.");
                 return null;
@@ -903,10 +906,10 @@ public class Couch {
             Attachment att = rev.getAttachment(filename);
             if (att == null) {
             	//RevisionInternal irev = database.getDocumentWithIDAndRev(name, rev.getId(), EnumSet.noneOf(TDContentOptions.class));
-	        RevisionInternal irev = database.getDocument(name, rev.getId(), true);
-            	//long seq = irev.getSequence();
-            	//att = database.getAttachmentForSequence(seq, filename);
-		AttachmentInternal atti = database.getAttachment(irev, filename);
+                RevisionInternal irev = database.getDocument(name, rev.getId(), true);
+                //long seq = irev.getSequence();
+                //att = database.getAttachmentForSequence(seq, filename);
+                AttachmentInternal atti = database.getAttachment(irev, filename);
             	if (atti == null) {
             		Log.e(TAG, "Document: " + name + " has no such attachment to send to path: " + filename);
             		return null;

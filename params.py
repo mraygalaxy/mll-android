@@ -8,7 +8,6 @@ parameters = {
        "port" : 10000,
        "sslport" : -1,
        "host" : "0.0.0.0",
-#       "keepsession" : True,
        "keepsession" : True,
        "debug_host" : False,
 #       "test" : cwd + "logs/",
