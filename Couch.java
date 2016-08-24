@@ -49,7 +49,6 @@ import com.couchbase.lite.router.Router;
 import com.couchbase.lite.Document;
 import com.couchbase.lite.UnsavedRevision;
 import com.couchbase.lite.internal.RevisionInternal;
-//import com.couchbase.lite.Database.TDContentOptions;
 import com.couchbase.lite.Mapper;
 import com.couchbase.lite.Emitter;
 import com.couchbase.lite.Reducer;
@@ -92,13 +91,8 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.net.InetAddress;
 
-//import org.apache.http.conn.ssl.SSLSocketFactory;
 import javax.net.ssl.SSLSocketFactory;
 import org.apache.commons.io.IOUtils;
-
-//import org.codehaus.jackson.map.ObjectMapper;
-//import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
-//import org.codehaus.jackson.type.TypeReference;
 
 public class Couch {
 
@@ -187,8 +181,6 @@ public class Couch {
 		return sslContext.getSocketFactory().createSocket(arg0, arg1, arg2, arg3);
 	}
 
-	/*
-	*/
 	public Socket createSocket(InetAddress arg0, int arg1, InetAddress arg2,
 			int arg3) throws IOException {
 		return sslContext.getSocketFactory().createSocket(arg0, arg1, arg2, arg3);
@@ -259,6 +251,7 @@ public class Couch {
             Manager.enableLogging(com.couchbase.lite.util.Log.TAG_QUERY, com.couchbase.lite.util.Log.VERBOSE);
             Manager.enableLogging(com.couchbase.lite.util.Log.TAG_VIEW, com.couchbase.lite.util.Log.VERBOSE);
             Manager.enableLogging(com.couchbase.lite.util.Log.TAG_DATABASE, com.couchbase.lite.util.Log.VERBOSE);
+            //Manager.enableLogging(com.couchbase.lite.util.Log.TAG_SYNC, com.couchbase.lite.util.Log.VERBOSE);
             //Manager.enableLogging(com.couchbase.lite.util.Log.TAG_REMOTE_REQUEST, com.couchbase.lite.util.Log.VERBOSE);
             //Manager.enableLogging(com.couchbase.lite.util.Log.TAG_ROUTER, com.couchbase.lite.util.Log.VERBOSE);
             //Manager.enableLogging(com.couchbase.lite.util.Log.TAG_LISTENER, com.couchbase.lite.util.Log.VERBOSE);
@@ -607,27 +600,27 @@ public class Couch {
             }
     }
 
-    private void updateReplication(Replication.ChangeEvent event, final String type) {
+    private void updateReplication(Replication.ChangeEvent event, final String type, final String database_name) {
         Replication replication = event.getSource();
         if (!replication.isRunning()) {
-            Log.d(TAG, " replicator " + replication + " is not running");
+            Log.d(TAG, " replicator " + replication + " is not running" + " for database " + database_name);
         } else {
             int processed = replication.getCompletedChangesCount();
             int total = replication.getChangesCount();
-            Log.d(TAG, type + " Replicator processed " + processed + " / " + total + " status: " + replication.getStatus());
+            Log.d(TAG, type + " Replicator processed " + processed + " / " + total + " status: " + replication.getStatus() + " for database " + database_name);
             if (total != 0) {
                 final double percent = (double) Math.min(100.0, (double) processed / (double) Math.max(1, total) * 100.0);
                 if (type.equals("pull")) {
-                    Log.d(TAG, "(pull) " + type + " setting pull percent to " + percent + " from " + pull_percent);
+                    Log.d(TAG, "(pull) " + type + " setting pull percent to " + percent + " from " + pull_percent + " for database " + database_name);
                     if (pull_percent == percent) {
-                        Log.d(TAG, type + " no change.");
+                        Log.d(TAG, type + " no change." + " for database " + database_name);
                         return;
                     }
                     pull_percent = percent;
                 } else {
-                    Log.d(TAG, "(push) " + type + " setting push percent to " + percent + " from " + push_percent);
+                    Log.d(TAG, "(push) " + type + " setting push percent to " + percent + " from " + push_percent + " for database " + database_name);
                     if (push_percent == percent) {
-                        Log.d(TAG, type + " no change.");
+                        Log.d(TAG, type + " no change." + " for database " + database_name);
                         return;
                     }
                     push_percent = percent;
@@ -641,9 +634,9 @@ public class Couch {
         }
     }
 
-    public int replicate(String database_name, String server, boolean force, String filterparams) {
+    public int replicate(final String database_name, String server, boolean force, String filterparams) {
         boolean nopush = false;
-        if (database_name != "mica")
+        if (!database_name.equals("mica"))
             nopush = true;
         Log.d(TAG, "Checking for old replications..." + " db " + database_name);
 
@@ -700,14 +693,14 @@ public class Couch {
             pull.addChangeListener(new Replication.ChangeListener() {
                 @Override
                 public void changed(Replication.ChangeEvent event) {
-                    updateReplication(event, "pull");
+                    updateReplication(event, "pull", database_name);
                 }
             });
 
             push.addChangeListener(new Replication.ChangeListener() {
                 @Override
                 public void changed(Replication.ChangeEvent event) {
-                    updateReplication(event, "push");
+                    updateReplication(event, "push", database_name);
                 }
             });
 
@@ -719,9 +712,9 @@ public class Couch {
             pull.start();
             if (!nopush) {
                 push.start();
+	        pushes.put(database_name, push);
             }
             pulls.put(database_name, pull);
-            pushes.put(database_name, push);
         } catch (Exception e) {
             dumpError(e);
             return -1;
