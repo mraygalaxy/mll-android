@@ -393,7 +393,7 @@ public class Couch {
         mappers.put("accounts/allcount", mappers.get("accounts/all"));
         reducers.put("accounts/allcount", countReducer);
 
-        mappers.put("memorized/all", new Mapper() {
+        mappers.put("memorized2/all", new Mapper() {
             public void map(Map<String, Object> document, Emitter emitter) {
                 String id = (String) document.get("_id");
                 if (id.matches("MICA:[^:]+:memorized:[^:]+$"))
@@ -401,8 +401,41 @@ public class Couch {
             }
         });
 
-        mappers.put("memorized/allcount", mappers.get("memorized/all"));
-        reducers.put("memorized/allcount", countReducer);
+        mappers.put("memorized2/allcount", new Mapper() {
+            public void map(Map<String, Object> document, Emitter emitter) {
+                String lang = (String) document.get("source_language");
+                if (lang == null) {
+                    lang = "zh-CHS";
+                    List<String> sromanization = (List<String>) document.get("sromanization"); 
+                    List<String> target = (List<String>) document.get("target"); 
+
+                    if (sromanization != null) {
+                        if (sromanization.size() == 0) {
+                            lang = "en";
+                        } else {
+                            String merged = "";
+                            List<String> source = (List<String>) document.get("source"); 
+                            for (String part : source) {
+                                merged += part;
+                            }
+
+                            if (sromanization.size() == 1 && merged.equals(sromanization.get(0))) {
+                                if (source.size() > 1 || !source.get(0).equals(sromanization.get(0))) {
+                                    if (target.size() == 0 || !sromanization.get(0).equals(target.get(0))) {
+                                        lang = "en";
+                                    }
+                                }
+                            }
+                        }
+                    } 
+                }
+
+                String id = (String) document.get("_id");
+                if (id.matches("MICA:[^:]+:memorized:[^:]+$"))
+                    emitter.emit(new String[] {id.replaceAll("(MICA:|:memorized:.*)", ""), lang, id.replaceAll("(MICA:[^:]+:memorized:)", "")}, document);
+            }
+        });
+        reducers.put("memorized2/allcount", countReducer);
 
         mappers.put("mergegroups/all", new Mapper() {
             public void map(Map<String, Object> document, Emitter emitter) {
