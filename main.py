@@ -1,38 +1,62 @@
 #!/usr/bin/env python
 # coding: utf-8
 __version__ = "0.5.6"
+print "1"
 import kivy
+print "2"
 from kivy.app import App
+print "4"
 from kivy.uix.widget import Widget
+print "5"
 from kivy.clock import Clock
+print "6"
 from kivy.core.window import Window
+print "7"
 try :
     from jnius import autoclass
+    print "8"
     from android.runnable import run_on_ui_thread 
+    print "9"
 except ImportError, e :
+    print "10"
     pass
+print "11"
 from time import sleep
+print "12"
 import base64
+print "13"
 import re
+print "14"
 import os
+print "15"
 import urllib2
+print "16"
 import sys
+print "17"
 import threading
+print "18"
 import codecs
 
 print "Starting up."
 
 from params import parameters
+print "20"
 from mica.mica import go, second_splash
+print "21"
 from mica.common import pre_init_localization
+print "22"
 from sys import settrace as sys_settrace
+print "23"
                  
 tree = []
 
+print "24"
 cwd = re.compile(".*\/").search(os.path.realpath(__file__)).group(0)
+print "25"
 
 sys.path = [cwd, cwd + "mica/"] + sys.path
 
+print "26"
 #WebView = autoclass('android.webkit.WebView')
 WebView = autoclass("org.renpy.android.MyWebView")
 WebViewClient = autoclass('android.webkit.WebViewClient')
@@ -41,6 +65,7 @@ String = autoclass('java.lang.String')
 MLog = autoclass("org.renpy.android.MLog")
 CouchBase = autoclass("org.renpy.android.Couch")
 MobileInternet = autoclass("org.renpy.android.Internet")
+print "27"
 
 print("Loading mica services")
 print("We are located at: " + cwd)

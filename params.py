@@ -9,6 +9,7 @@ parameters = {
        "sslport" : -1,
        "host" : "0.0.0.0",
        "keepsession" : True,
+#       "keepsession" : False,
        "debug_host" : False,
 #       "test" : cwd + "logs/",
        "log" : False,

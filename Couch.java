@@ -18,6 +18,8 @@ import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.content.BroadcastReceiver;
 import android.content.res.AssetManager;
+import android.os.Environment;
+import android.os.Build;
 
 import com.couchbase.lite.Context;
 import com.couchbase.lite.android.AndroidNetworkReachabilityManager;
@@ -220,7 +222,50 @@ public class Couch {
 
         @Override
         public File getFilesDir() {
-            return wrapped.getExternalFilesDir(null);
+            /*
+            if (isExternalStorageWritable() && isExternalStorageReadable()) {
+                return Environment.getExternalStorageDirectory();
+            }
+            */
+            //return wrapped.getFilesDir();
+            //return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
+            //return getExternalFilesDirs(wrapped, null)[1];
+            File first = wrapped.getExternalFilesDir(null);
+
+//            if(Environment.isExternalStorageRemovable()) {
+                File lastDir = null;
+                File dirs[] = wrapped.getExternalFilesDirs(null);
+                for (File dir : dirs) {
+                    Log.d(TAG, "DIRECTORY: " + dir.toString());
+                    // dir can be null if the device contains an external SD card slot but no SD card is present.
+                    if (dir != null && !(first.toString().equals(dir.toString()))) {
+                        lastDir = dir;
+                    }
+                }
+                if (lastDir != null)
+                    return lastDir;
+                else
+                    return first;
+ //           } else {
+  //              return first;
+//            }
+        }
+
+        private boolean isExternalStorageWritable() {
+            String state = Environment.getExternalStorageState();
+            if (Environment.MEDIA_MOUNTED.equals(state)) {
+                return true;
+            }
+            return false;
+        }
+
+        private boolean isExternalStorageReadable() {
+            String state = Environment.getExternalStorageState();
+            if (Environment.MEDIA_MOUNTED.equals(state) ||
+                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
+                return true;
+            }
+            return false;
         }
     }
 
@@ -854,6 +899,25 @@ public class Couch {
                     return "";
             } 
             return toJSON(doc.getProperties());
+        } catch(Exception e) {
+            dumpError(e);
+            return null;
+        }
+    }
+
+    public String info(String dbname) {
+        Map<String, Object> info = new HashMap<String, Object>();
+        try {
+            Database database = (Database) dbs.get(dbname);
+            info.put("size", database.totalDataSize());
+            info.put("db_name", database.getName());
+            info.put("db_uuid", database.publicUUID());
+            info.put("doc_count", database.getDocumentCount());
+            info.put("update_seq", database.getLastSequenceNumber());
+            info.put("disk_size", database.totalDataSize());
+            info.put("instance_start_time", database.getStartTime() * 1000);
+
+            return toJSON(info);
         } catch(Exception e) {
             dumpError(e);
             return null;

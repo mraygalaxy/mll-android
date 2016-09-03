@@ -55,13 +55,13 @@ fullscreen = 0
 #
 
 # (list) Permissions
-android.permissions = INTERNET,ACCESS_NETWORK_STATE
+android.permissions = INTERNET,ACCESS_NETWORK_STATE,WRITE_EXTERNAL_STORAGE
 
 # (int) Android API to use
-android.api = 16
+android.api = 19
 
 # (int) Minimum API required (8 = Android 2.2 devices)
-android.minapi = 16 
+android.minapi = 19 
 
 # (int) Android SDK version to use
 #android.sdk = 21
