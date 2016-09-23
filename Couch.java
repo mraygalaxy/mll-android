@@ -595,7 +595,7 @@ public class Couch {
                     */
                 }
 
-		Log.d(TAG, "We're ready to go!");
+                Log.d(TAG, "We're ready to go!");
                 return 0;
         } catch (Exception e) {
 		dumpError(e);
@@ -636,11 +636,11 @@ public class Couch {
     public void drop(String database_name) throws CouchbaseLiteException {
         stop_replication(database_name);
 
-	if (dbs.get(database_name) != null) {
-	     Database db = (Database) dbs.remove(database_name);
-	     db.delete();
+        if (dbs.get(database_name) != null) {
+             Database db = (Database) dbs.remove(database_name);
+             db.delete();
              Log.d(TAG, "Deleted database: " + database_name);
-	}
+        }
     }
 
     public void stop(String database_name) {
