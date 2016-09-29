@@ -9,17 +9,20 @@
 package org.renpy.android;
 
 import org.renpy.android.Internet;
+import org.renpy.android.RegistrationIntentService;
 import android.util.Log;
 import android.app.Activity;
 import android.webkit.WebView;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.net.wifi.WifiManager;
-import android.os.Bundle;
 import android.content.BroadcastReceiver;
 import android.content.res.AssetManager;
 import android.os.Environment;
-import android.os.Build;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.ConnectionResult;
 
 import com.couchbase.lite.Context;
 import com.couchbase.lite.android.AndroidNetworkReachabilityManager;
@@ -99,6 +102,7 @@ import org.apache.commons.io.IOUtils;
 public class Couch {
 
     private static final int DEFAULT_LISTEN_PORT = 5984;
+    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
 
     public static String TAG = "COUCHBASE";
     private Manager manager;
@@ -117,6 +121,8 @@ public class Couch {
 
     String cert_path = null;
     private BroadcastReceiver wifi_receiver;
+    private BroadcastReceiver notify_receiver;
+    private boolean isReceiverRegistered;
     private Internet in;
     Activity mActivity = null;
     WebView webview = null;
@@ -351,6 +357,21 @@ public class Couch {
 			}
 		};
 
+	    notify_receiver = new BroadcastReceiver()
+		{
+			 @Override
+			 public void onReceive(android.content.Context context, Intent intent) {
+				  SharedPreferences sharedPreferences =
+			          PreferenceManager.getDefaultSharedPreferences(context);
+  	                          boolean sentToken = sharedPreferences.getBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, false);
+				  if (sentToken) {
+					    Log.d(TAG, "Token was sent.");
+				  } else {
+					    Log.d(TAG, "Token was not sent.");
+				  }
+			}
+		};
+
             mActivity.registerReceiver(wifi_receiver, new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION));
 
 	    in = new Internet(mActivity);
@@ -545,6 +566,13 @@ public class Couch {
 
     public int listen(String username, String password, int suggestedListenPort) {
         try {
+		registerReceiver();
+
+		if (checkPlayServices()) {
+		    // Start IntentService to register this application with GCM.
+		    Intent intent = new Intent(mActivity, RegistrationIntentService.class);
+		    mActivity.startService(intent);
+		}
             if (listener == null || listenerThread == null) {
                 Log.d(TAG, "Trying to start listener on port: " + suggestedListenPort);
                 Credentials creds = new Credentials(username, password);
@@ -560,6 +588,32 @@ public class Couch {
         }
 
 	return -1;
+    }
+
+    private void registerReceiver(){
+        if(!isReceiverRegistered) {
+            mActivity.registerReceiver(notify_receiver, new IntentFilter(QuickstartPreferences.REGISTRATION_COMPLETE));
+            isReceiverRegistered = true;
+        }
+    }
+    /**
+     * Check the device to make sure it has the Google Play Services APK. If
+     * it doesn't, display a dialog that allows users to download the APK from
+     * the Google Play Store or enable it in the device's system settings.
+     */
+    private boolean checkPlayServices() {
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        int resultCode = apiAvailability.isGooglePlayServicesAvailable(mActivity);
+        if (resultCode != 0 ) {
+            if (apiAvailability.isUserResolvableError(resultCode)) {
+                apiAvailability.getErrorDialog(mActivity, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST).show();
+            } else {
+                Log.i(TAG, "This device is not supported.");
+                mActivity.finish();
+            }
+            return false;
+        }
+        return true;
     }
 
     public int start(String database_name) throws IOException, CouchbaseLiteException {

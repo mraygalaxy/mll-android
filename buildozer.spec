@@ -1,7 +1,7 @@
 [app]
 
 # (str) Title of your application
-title = MICA Learning 
+title = Read Alien 
 
 # (str) Package name
 package.name = mica
@@ -13,7 +13,7 @@ package.domain = com.hinespot
 source.dir = .
 
 # (list) Source files to include (let empty to include all the files)
-source.include_exts = py,png,jpg,kv,atlas,crt,js,css,html,gif,ico,svg,eot,woff,woff2,ttf,csv,sql,mo,p,wav,map
+source.include_exts = py,png,jpg,kv,atlas,crt,js,css,html,gif,ico,svg,eot,woff,woff2,ttf,csv,sql,mo,p,wav,map,json
 
 # (list) Source files to exclude (let empty to not exclude anything)
 #source.exclude_exts = mica/params.py
@@ -55,7 +55,7 @@ fullscreen = 0
 #
 
 # (list) Permissions
-android.permissions = INTERNET,ACCESS_NETWORK_STATE,WRITE_EXTERNAL_STORAGE
+android.permissions = INTERNET,ACCESS_NETWORK_STATE,WRITE_EXTERNAL_STORAGE,WAKE_LOCK,com.hinespot.mica.permission.C2D_MESSAGE,com.google.android.c2dm.permission.RECEIVE
 
 # (int) Android API to use
 android.api = 19
@@ -92,16 +92,12 @@ android.p4a_dir = %(source.dir)s/../../../../python-for-android
 # down the build process. Allows wildcards matching, for example:
 # OUYA-ODK/libs/*.jar
 
-#android.add_jars = %(source.dir)s/jars/couchbase-lite-java-core-1.0.2.jar,%(source.dir)s/jars/couchbase-lite-android-1.0.2.jar,%(source.dir)s/jars/couchbase-lite-java-javascript-1.0.2.jar,%(source.dir)s/jars/couchbase-lite-java-listener-1.0.2.jar,%(source.dir)s/jars/rhino-1.7R3.jar,%(source.dir)s/jars/commons-io-2.0.1.jar,%(source.dir)s/jars/jackson-core-asl-1.9.2.jar,%(source.dir)s/jars/jackson-mapper-asl-1.9.2.jar,%(source.dir)s/jars/servlet-2-3.jar,%(source.dir)s/jars/webserver-2-3.jar
-#android.add_jars = %(source.dir)s/jars/couchbase-lite-java-core-custom.jar,%(source.dir)s/jars/couchbase-lite-android-custom.jar,%(source.dir)s/jars/couchbase-lite-java-javascript-1.0.2.jar,%(source.dir)s/jars/couchbase-lite-java-listener-1.0.2.jar,%(source.dir)s/jars/rhino-1.7R3.jar,%(source.dir)s/jars/commons-io-2.0.1.jar,%(source.dir)s/jars/jackson-core-asl-1.9.2.jar,%(source.dir)s/jars/jackson-mapper-asl-1.9.2.jar,%(source.dir)s/jars/servlet-2-3.jar,%(source.dir)s/jars/webserver-2-3.jar
-#android.add_jars = %(source.dir)s/jars/couchbase-lite-java-core-1.0.2.jar,%(source.dir)s/jars/couchbase-lite-android-1.0.2.jar,%(source.dir)s/jars/couchbase-lite-java-javascript-1.0.2.jar,%(source.dir)s/jars/couchbase-lite-java-listener-1.0.2.jar,%(source.dir)s/jars/rhino-1.7R3.jar,%(source.dir)s/jars/commons-io-2.0.1.jar,%(source.dir)s/jars/jackson-core-asl-1.9.2.jar,%(source.dir)s/jars/jackson-mapper-asl-1.9.2.jar,%(source.dir)s/jars/servlet-2-3.jar,%(source.dir)s/jars/webserver-2-3.jar
-#android.add_jars = %(source.dir)s/jars/couchbase-lite-java-core-1.0.2.jar,%(source.dir)s/jars/couchbase-lite-android-1.0.2.jar,%(source.dir)s/jars/couchbase-lite-java-javascript-1.0.2.jar,%(source.dir)s/jars/couchbase-lite-java-listener-1.0.0-72-CORS.jar,%(source.dir)s/jars/rhino-1.7R3.jar,%(source.dir)s/jars/commons-io-2.0.1.jar,%(source.dir)s/jars/jackson-core-asl-1.9.2.jar,%(source.dir)s/jars/jackson-mapper-asl-1.9.2.jar,%(source.dir)s/jars/servlet-2-3.jar,%(source.dir)s/jars/webserver-2-3.jar
-android.add_jars = %(source.dir)s/jars/couchbase-lite-java-core-1.3.0.jar,%(source.dir)s/jars/couchbase-lite-java-javascript-1.3.0.jar,%(source.dir)s/jars/couchbase-lite-java-listener-1.3.0.jar,%(source.dir)s/jars/rhino-1.7R3.jar,%(source.dir)s/jars/commons-io-2.0.1.jar,%(source.dir)s/jars/jackson-core-2.5.0.jar,%(source.dir)s/jars/jackson-annotations-2.5.0.jar,%(source.dir)s/jars/jackson-databind-2.5.0.jar,%(source.dir)s/jars/servlet-2-3.jar,%(source.dir)s/jars/webserver-2-3.jar,%(source.dir)s/jars/stateless4j-2.4.0.jar,%(source.dir)s/jars/okio-1.8.0.jar,%(source.dir)s/jars/okhttp-3.3.1.jar,%(source.dir)s/jars/couchbase-lite-android-1.3.0.jar,%(source.dir)s/jars/couchbase-lite-android-forestdb-1.3.0.jar,%(source.dir)s/jars/couchbase-lite-android-sqlcipher-1.3.0.jar,%(source.dir)s/jars/couchbase-lite-android-sqlite-custom-1.3.0.jar
+android.add_jars = %(source.dir)s/jars/couchbase-lite-java-core-1.3.0.jar,%(source.dir)s/jars/couchbase-lite-java-javascript-1.3.0.jar,%(source.dir)s/jars/couchbase-lite-java-listener-1.3.0.jar,%(source.dir)s/jars/rhino-1.7R3.jar,%(source.dir)s/jars/commons-io-2.0.1.jar,%(source.dir)s/jars/jackson-core-2.5.0.jar,%(source.dir)s/jars/jackson-annotations-2.5.0.jar,%(source.dir)s/jars/jackson-databind-2.5.0.jar,%(source.dir)s/jars/servlet-2-3.jar,%(source.dir)s/jars/webserver-2-3.jar,%(source.dir)s/jars/stateless4j-2.4.0.jar,%(source.dir)s/jars/okio-1.8.0.jar,%(source.dir)s/jars/okhttp-3.3.1.jar,%(source.dir)s/jars/couchbase-lite-android-1.3.0.jar,%(source.dir)s/jars/couchbase-lite-android-forestdb-1.3.0.jar,%(source.dir)s/jars/couchbase-lite-android-sqlcipher-1.3.0.jar,%(source.dir)s/jars/couchbase-lite-android-sqlite-custom-1.3.0.jar,%(source.dir)s/jars/play-services.jar,%(source.dir)s/jars/android-support-v4.jar,%(source.dir)s/jars/play-services-gcm.jar,%(source.dir)s/jars/play-services-iid.jar,%(source.dir)s/jars/play-services-basement.jar
 
 
 # (list) List of Java files to add to the android project (can be java or a
 # directory containing the files)
-android.add_src = %(source.dir)s/Couch.java,%(source.dir)s/MLog.java,%(source.dir)s/Internet.java,%(source.dir)s/MyWebView.java
+android.add_src = %(source.dir)s/MyInstanceIDListenerService.java,%(source.dir)s/QuickstartPreferences.java,%(source.dir)s/MyGcmListenerService.java,%(source.dir)s/RegistrationIntentService.java,%(source.dir)s/Couch.java,%(source.dir)s/MLog.java,%(source.dir)s/Internet.java,%(source.dir)s/MyWebView.java
 
 # (str) python-for-android branch to use, if not master, useful to try
 # not yet merged features.
@@ -131,7 +127,7 @@ android.add_libs_armeabi = %(source.dir)s/jars/libcbljavakey.so,%(source.dir)s/j
 #android.wakelock = False
 
 # (list) Android application meta-data to set (key=value format)
-android.meta_data = android:largeHeap="true",com.sec.android.support.multiwindow="true",com.sec.android.multiwindow.DEFAULT_SIZE_W=632.0dip,com.sec.android.multiwindow.DEFAULT_SIZE_H=598.0dip,com.sec.android.multiwindow.MINIMUM_SIZE_W=632.0dip,com.sec.android.multiwindow.MINIMUM_SIZE_H=598.0dip
+android.meta_data = android:largeHeap="true",com.sec.android.support.multiwindow="true",com.sec.android.multiwindow.DEFAULT_SIZE_W=632.0dip,com.sec.android.multiwindow.DEFAULT_SIZE_H=598.0dip,com.sec.android.multiwindow.MINIMUM_SIZE_W=632.0dip,com.sec.android.multiwindow.MINIMUM_SIZE_H=598.0dip,com.google.android.gms.version="9.6.1"
 
 
 # (list) Android library project to add (will be added in the
