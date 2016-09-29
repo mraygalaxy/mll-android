@@ -1,12 +1,12 @@
-mica-android
+mll-android
 ============
 
-MICA Reader: A Kivy/Python-for-Android project which runs the mobile version of MICA: A Chinese Learning system: http://github.com/hinesmr/mica
+Read Alien: A Kivy/Python-for-Android project which runs the mobile version of MLL: Meta-Language Learning Systems: http://github.com/hinesmr/mica
 
-The mobile reader version is a completely offline, synchronizable, fully-functional version of MICA.
+The mobile reader version is a completely offline, synchronizable, fully-functional version.
 
 It works by replicating your reading with the server using the couchdb REST API and runs exactly the same
-python-version of MICA on the phone.
+python-version on the phone.
 
 This includes a buildozer.spec file as well as two additional recipe dependencies: python-cjklib and python-webob
 
@@ -22,7 +22,7 @@ $ git clone http://github.com/hinesmr/python-for-android /path/to/mica-android/.
      two cloned projects. This one and <a href='http://github.com/hinesmr/python-for-android'>my fork of python-for-android</a>
      both sitting side-by-side on disk.
 
-$ git clone http://github.com/hinesmr/mica /path/to/mica-android/service/mica
+$ git clone http://github.com/hinesmr/mica /path/to/mll-android/service/mica
  
    - This clones a complete copy of MICA itself (which is this same core code used to power the mobile version) into a sub-directory
      of the mobile reader. Make sure it goes into the sub-directory "service/"
@@ -42,17 +42,6 @@ USAGE:
 
 The mobile reader does not allow you to import stories from scratch. It uses the couchdb REST
 protocol to work offline by replicating the server database onto the phone in its entirety. So you must
-first install MICA itself on the server side, upload and translate your stories and then use the APK.
-Once they stories are translated on the server side and replicated to the phone (which you can track with adb logcat | grep System.out),
+first install MLL itself on the server side, upload and translate your stories and then use the APK.
+Once they stories are translated on the server side and replicated to the phone
 you will be able to use the mobile and server versions seamlessly and interchangeably.
-
-BUGS:
-===========
-
-1. Replication is very silent right now. There is a lot of work to do on the mobile version to better notify the user when a missing data has not yet been replicated (in both directions), but that support will come soon. The only way to verify that replication is complete (before you start reading offline) is to open the REST API in your browser on both the server and the phone's IP addresses (located at http://admin:secret_password@ip_address:5984) and verify that the number of documents on the phone is equal to the number of documents on the server side. "Rest" assured (no pun intended) that this problem is on the top of the priority list to be solved.
-
-2. There is no syntax checking on the service/params.py file yet.
-
-3. Probably other bugs, but I've been using the reader continuously for several weeks without any serious bugs, so I think I've worked out most of the complex issues so far.
-
-Happy studying. =)
