@@ -127,7 +127,7 @@ android.add_libs_armeabi = %(source.dir)s/jars/libcbljavakey.so,%(source.dir)s/j
 #android.wakelock = False
 
 # (list) Android application meta-data to set (key=value format)
-android.meta_data = android:largeHeap="true",com.sec.android.support.multiwindow="true",com.sec.android.multiwindow.DEFAULT_SIZE_W=632.0dip,com.sec.android.multiwindow.DEFAULT_SIZE_H=598.0dip,com.sec.android.multiwindow.MINIMUM_SIZE_W=632.0dip,com.sec.android.multiwindow.MINIMUM_SIZE_H=598.0dip,com.google.android.gms.version="9.6.1"
+android.meta_data = android:largeHeap="true",com.sec.android.support.multiwindow="true",com.sec.android.multiwindow.DEFAULT_SIZE_W=632.0dip,com.sec.android.multiwindow.DEFAULT_SIZE_H=598.0dip,com.sec.android.multiwindow.MINIMUM_SIZE_W=632.0dip,com.sec.android.multiwindow.MINIMUM_SIZE_H=598.0dip,com.google.android.gms.version="9683000"
 
 
 # (list) Android library project to add (will be added in the

@@ -39,16 +39,16 @@ public class RegistrationIntentService extends IntentService {
 
             sharedPreferences.edit().putBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, true).apply();
         } catch (Exception e) {
-            Log.i(TAG, "Failed to register with GCM: " + str(e));
+            Log.i(TAG, "Failed to register with GCM: " + e);
             sharedPreferences.edit().putBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, false).apply();
         }
         // Notify UI that registration has completed, so the progress indicator can be hidden.
         Intent registrationComplete = new Intent(QuickstartPreferences.REGISTRATION_COMPLETE);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(registrationComplete);
+        sendBroadcast(registrationComplete);
     }
 
     private void sendRegistrationToServer(String token) {
-	Log.d(TAG, "We would like to tell the server we're available.");
+        Log.d(TAG, "We would like to tell the server we're available.");
     }
 
     /**

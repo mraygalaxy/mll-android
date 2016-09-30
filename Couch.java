@@ -122,7 +122,6 @@ public class Couch {
     String cert_path = null;
     private BroadcastReceiver wifi_receiver;
     private BroadcastReceiver notify_receiver;
-    private boolean isReceiverRegistered;
     private Internet in;
     Activity mActivity = null;
     WebView webview = null;
@@ -327,57 +326,68 @@ public class Couch {
             }
             Log.d(TAG, "Finished listing databases.");
 
-	    wifi_receiver = new BroadcastReceiver()
-		{
-			 @Override
-			 public void onReceive(android.content.Context context, Intent intent) {
-				  int extraWifiState = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE ,
-				    WifiManager.WIFI_STATE_UNKNOWN);
-				 
-				  switch(extraWifiState){
-					  case WifiManager.WIFI_STATE_DISABLED:
-					    Log.d(TAG, "Wifi disabled.");
-					    changeAllReplications(false);
-					   break;
-					  case WifiManager.WIFI_STATE_DISABLING:
-					    Log.d(TAG, "Wifi disabling.");
-					   break;
-					  case WifiManager.WIFI_STATE_ENABLED:
-					    Log.d(TAG, "Wifi enabled.");
-					    changeAllReplications(true);
-					   break;
-					  case WifiManager.WIFI_STATE_ENABLING:
-					    Log.d(TAG, "Wifi enabling.");
-					   break;
-					  case WifiManager.WIFI_STATE_UNKNOWN:
-					    Log.d(TAG, "Wifi unknown.");
-					   break;
-				  }
-	 
-			}
-		};
+            wifi_receiver = new BroadcastReceiver()
+            {
+                 @Override
+                 public void onReceive(android.content.Context context, Intent intent) {
+                      int extraWifiState = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE ,
+                        WifiManager.WIFI_STATE_UNKNOWN);
+                     
+                      switch(extraWifiState){
+                          case WifiManager.WIFI_STATE_DISABLED:
+                            Log.d(TAG, "Wifi disabled.");
+                            changeAllReplications(false);
+                           break;
+                          case WifiManager.WIFI_STATE_DISABLING:
+                            Log.d(TAG, "Wifi disabling.");
+                           break;
+                          case WifiManager.WIFI_STATE_ENABLED:
+                            Log.d(TAG, "Wifi enabled.");
+                            changeAllReplications(true);
+                           break;
+                          case WifiManager.WIFI_STATE_ENABLING:
+                            Log.d(TAG, "Wifi enabling.");
+                           break;
+                          case WifiManager.WIFI_STATE_UNKNOWN:
+                            Log.d(TAG, "Wifi unknown.");
+                           break;
+                      }
+                }
+            };
 
-	    notify_receiver = new BroadcastReceiver()
-		{
-			 @Override
-			 public void onReceive(android.content.Context context, Intent intent) {
-				  SharedPreferences sharedPreferences =
-			          PreferenceManager.getDefaultSharedPreferences(context);
-  	                          boolean sentToken = sharedPreferences.getBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, false);
-				  if (sentToken) {
-					    Log.d(TAG, "Token was sent.");
-				  } else {
-					    Log.d(TAG, "Token was not sent.");
-				  }
-			}
-		};
+            notify_receiver = new BroadcastReceiver()
+            {
+                 @Override
+                 public void onReceive(android.content.Context context, Intent intent) {
+                    try {
+                      SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+                      boolean sentToken = sharedPreferences.getBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, false);
+                      if (sentToken) {
+                            Log.d(TAG, "Token was sent.");
+                      } else {
+                            Log.d(TAG, "Token was not sent.");
+                      }
+                    } catch (Exception e) {
+                        dumpError(e);
+                    }
+                }
+            };
+
+            mActivity.registerReceiver(notify_receiver, new IntentFilter(QuickstartPreferences.REGISTRATION_COMPLETE));
 
             mActivity.registerReceiver(wifi_receiver, new IntentFilter(WifiManager.WIFI_STATE_CHANGED_ACTION));
 
-	    in = new Internet(mActivity);
+            in = new Internet(mActivity);
+
+            if (checkPlayServices()) {
+                // Start IntentService to register this application with GCM.
+                Intent intent = new Intent(mActivity, RegistrationIntentService.class);
+                mActivity.startService(intent);
+            }
+
 
         } catch (Exception e) {
-		dumpError(e);
+            dumpError(e);
         }
 
         Reducer countReducer = new Reducer() {
@@ -556,7 +566,7 @@ public class Couch {
 		    Log.d(TAG, "Change all replications exiting.");
 		    
         } catch (Exception e) {
-		dumpError(e);
+            dumpError(e);
         }
     }
 
@@ -566,13 +576,7 @@ public class Couch {
 
     public int listen(String username, String password, int suggestedListenPort) {
         try {
-		registerReceiver();
 
-		if (checkPlayServices()) {
-		    // Start IntentService to register this application with GCM.
-		    Intent intent = new Intent(mActivity, RegistrationIntentService.class);
-		    mActivity.startService(intent);
-		}
             if (listener == null || listenerThread == null) {
                 Log.d(TAG, "Trying to start listener on port: " + suggestedListenPort);
                 Credentials creds = new Credentials(username, password);
@@ -587,14 +591,7 @@ public class Couch {
             dumpError(e);
         }
 
-	return -1;
-    }
-
-    private void registerReceiver(){
-        if(!isReceiverRegistered) {
-            mActivity.registerReceiver(notify_receiver, new IntentFilter(QuickstartPreferences.REGISTRATION_COMPLETE));
-            isReceiverRegistered = true;
-        }
+        return -1;
     }
     /**
      * Check the device to make sure it has the Google Play Services APK. If
