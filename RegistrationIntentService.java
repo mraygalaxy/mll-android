@@ -37,10 +37,11 @@ public class RegistrationIntentService extends IntentService {
 
             subscribeTopics(token);
 
-            sharedPreferences.edit().putBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, true).apply();
+            sharedPreferences.edit().putBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, true).commit();
+            sharedPreferences.edit().putString(QuickstartPreferences.ACTUAL_TOKEN, token).commit();
         } catch (Exception e) {
             Log.i(TAG, "Failed to register with GCM: " + e);
-            sharedPreferences.edit().putBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, false).apply();
+            sharedPreferences.edit().putBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, false).commit();
         }
         // Notify UI that registration has completed, so the progress indicator can be hidden.
         Intent registrationComplete = new Intent(QuickstartPreferences.REGISTRATION_COMPLETE);

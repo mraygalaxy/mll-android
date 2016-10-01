@@ -128,6 +128,8 @@ public class Couch {
     private double pull_percent = 0.0;
     private double push_percent = 100.0;
     
+    private String maindb = null;
+
     public class MyJavaScriptInterface {
 	    public void someCallback(String jsResult) {
 		Log.d(TAG, "JAVASCRIPT: Callback returned: " + jsResult);
@@ -274,6 +276,49 @@ public class Couch {
         }
     }
 
+    private void updateToken() {
+        try {
+          SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+          synchronized(context) {
+              boolean sentToken = sharedPreferences.getBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, false);
+              String token = sharedPreferences.getString(QuickstartPreferences.ACTUAL_TOKEN, "");
+              if (sentToken) {
+                    if (token == null || token.equals("")) {
+                        Log.d(TAG, "Token was null: " + token);
+                    } else {
+                        Log.d(TAG, "Token was sent: " + token);
+                        String doc = get(maindb, "MICA:push_tokens");
+                        if (doc == null || doc.equals("")) {
+                            Log.d(TAG, "Push token doc doesn't exist. Make a new one.");
+                            doc = "{\"gcm\":[], \"apns_dev\" : [], \"apns_dist\" : []}";
+                        }
+                        Map<String, Object> tokens = toJava(doc);
+                        List<String> gcm = (List<String>) tokens.get("gcm"); 
+                        boolean found = false;
+                        for (String tmptoken : gcm) {
+                            if (tmptoken.equals(token)) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (!found) {
+                            gcm.add(token);
+                            String stokens = toJSON(tokens);
+                            Log.d(TAG, "Adding new token to DB: " + stokens);
+                            Log.d(TAG, "Result of updating DB: " + put(maindb, "MICA:push_tokens", stokens));
+                        } else {
+                            Log.d(TAG, "Token already in DB.");
+                        }
+                    }
+              } else {
+                    Log.d(TAG, "Token was not sent.");
+              }
+          }
+        } catch (Exception e) {
+            dumpError(e);
+        }
+    }
+
     public Couch(String cert, Activity activity) throws IOException {
         Log.d(TAG, "Replication status options: active " + Replication.ReplicationStatus.REPLICATION_ACTIVE +
 		   " idle " + Replication.ReplicationStatus.REPLICATION_IDLE +
@@ -359,17 +404,7 @@ public class Couch {
             {
                  @Override
                  public void onReceive(android.content.Context context, Intent intent) {
-                    try {
-                      SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-                      boolean sentToken = sharedPreferences.getBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, false);
-                      if (sentToken) {
-                            Log.d(TAG, "Token was sent.");
-                      } else {
-                            Log.d(TAG, "Token was not sent.");
-                      }
-                    } catch (Exception e) {
-                        dumpError(e);
-                    }
+                    updateToken();
                 }
             };
 
@@ -622,6 +657,12 @@ public class Couch {
                     dbs.put(database_name, database);	
 
                     String version = "2";
+    
+                    if (!database_name.equals("files") && !database_name.equals("sessiondb")) {
+                        Log.d(TAG, "This is the main database: " + database_name);
+                        maindb = database_name;
+                        updateToken();
+                    }
 
                     Iterator it = mappers.entrySet().iterator();
                     while (it.hasNext()) {
@@ -691,21 +732,26 @@ public class Couch {
              Database db = (Database) dbs.remove(database_name);
              db.delete();
              Log.d(TAG, "Deleted database: " + database_name);
+
+            if (maindb.equals(database_name)) {
+                Log.d(TAG, "Unsetting main database: " + maindb);
+                maindb = null;
+            }
         }
     }
 
     public void stop(String database_name) {
-	stop_replication(database_name);
+        stop_replication(database_name);
 
-	if (dbs.get(database_name) != null) {
-	     Database db = (Database) dbs.remove(database_name);
-	    /* 
-	     * The CBL api doesn't have a 'close' database (nor in the manager).
-	     * At least, I couldn't find it in the documentation.
-	     */
-	     //db.close();
-             Log.d(TAG, "Closed database: " + database_name);
-	}
+        if (dbs.get(database_name) != null) {
+             Database db = (Database) dbs.remove(database_name);
+            /* 
+             * The CBL api doesn't have a 'close' database (nor in the manager).
+             * At least, I couldn't find it in the documentation.
+             */
+             //db.close();
+                 Log.d(TAG, "Closed database: " + database_name);
+        }
 
         if (urls.get(database_name) != null) {
                 urls.remove(database_name);
@@ -713,6 +759,11 @@ public class Couch {
 
         if (filters.get(database_name) != null) {
                 filters.remove(database_name);
+        }
+
+        if (maindb.equals(database_name)) {
+            Log.d(TAG, "Unsetting main database: " + maindb);
+            maindb = null;
         }
     }
 
@@ -932,8 +983,8 @@ public class Couch {
             Document document = database.getDocument(name);
 	    Log.d(TAG, "Want to put to key " + name + " with a length: " + json.length() + " db " + dbname);
             Map<String, Object> properties = toJava(json);
-	    document.putProperties(properties);
-	    Log.d(TAG, "Revision committed for key " + name);
+            document.putProperties(properties);
+            Log.d(TAG, "Revision committed for key " + name);
             return "";
         } catch(Exception e) {
             dumpError(e);
