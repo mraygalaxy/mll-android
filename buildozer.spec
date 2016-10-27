@@ -32,7 +32,7 @@ version.filename = %(source.dir)s/main.py
 # version = 1.2.0
 
 # (list) Application requirements
-requirements = openssl,pyopenssl,sqlite3,twisted,kivy
+requirements = openssl,pyopenssl,sqlite3,kivy,pyjnius
 
 # (list) Garden requirements
 #garden_requirements =

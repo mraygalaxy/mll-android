@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
-__version__ = "0.8.4"
+__version__ = "0.9.0"
 print "1"
 import kivy
 print "2"
@@ -18,7 +18,7 @@ try :
     from android.runnable import run_on_ui_thread 
     print "9"
 except ImportError, e :
-    print "10"
+    print "10: " + str(e)
     pass
 print "11"
 from time import sleep
@@ -207,6 +207,10 @@ class ReaderApp(App):
 
     def on_pause(self):
         log.debug(String("MICA is pausing. Don't know what to do about that yet."))
+        return True
+
+    def on_resume(self):
+        log.debug(String("MICA is resume. Don't know what to do about that yet."))
         return True
 
 if __name__ == '__main__':
