@@ -284,12 +284,12 @@ public class Couch {
               String token = sharedPreferences.getString(QuickstartPreferences.ACTUAL_TOKEN, "");
               if (sentToken) {
                     if (token == null || token.equals("")) {
-                        Log.d(TAG, "Token was null: " + token);
+                        Log.d("UPDATETOKEN", "Token was null: " + token);
                     } else {
-                        Log.d(TAG, "Token was sent: " + token);
+                        Log.d("UPDATETOKEN", "Token was updated: " + token);
                         String doc = get(maindb, "MICA:push_tokens");
                         if (doc == null || doc.equals("")) {
-                            Log.d(TAG, "Push token doc doesn't exist. Make a new one.");
+                            Log.d("UPDATETOKEN", "Push token doc doesn't exist. Make a new one.");
                             doc = "{\"gcm\":[], \"apns_dev\" : [], \"apns_dist\" : []}";
                         }
                         Map<String, Object> tokens = toJava(doc);
@@ -304,14 +304,14 @@ public class Couch {
                         if (!found) {
                             gcm.add(token);
                             String stokens = toJSON(tokens);
-                            Log.d(TAG, "Adding new token to DB: " + stokens);
-                            Log.d(TAG, "Result of updating DB: " + put(maindb, "MICA:push_tokens", stokens));
+                            Log.d("UPDATETOKEN", "Adding new token to DB: " + stokens);
+                            Log.d("UPDATETOKEN", "Result of updating DB: " + put(maindb, "MICA:push_tokens", stokens));
                         } else {
-                            Log.d(TAG, "Token already in DB.");
+                            Log.d("UPDATETOKEN", "Token already in DB.");
                         }
                     }
               } else {
-                    Log.d(TAG, "Token was not sent.");
+                    Log.d("UPDATETOKEN", "Token was not sent.");
               }
           }
         } catch (Exception e) {
@@ -416,6 +416,7 @@ public class Couch {
 
             if (checkPlayServices()) {
                 // Start IntentService to register this application with GCM.
+		Log.d("RegIntentService", "Signalling RegIntentService to perform a run...");
                 Intent intent = new Intent(mActivity, RegistrationIntentService.class);
                 mActivity.startService(intent);
             }

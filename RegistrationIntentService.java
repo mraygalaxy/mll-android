@@ -25,13 +25,14 @@ public class RegistrationIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+	Log.d(TAG, "RegIntentService performing a run...");
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         try {
 	    /* Need to check for internet connectivity on the first time. */
             InstanceID instanceID = InstanceID.getInstance(this);
             String token = instanceID.getToken("195565572022", GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
-            Log.i(TAG, "GCM Registration Token: " + token);
+            Log.d(TAG, "GCM Registration Token: " + token);
 
             sendRegistrationToServer(token);
 
@@ -39,8 +40,10 @@ public class RegistrationIntentService extends IntentService {
 
             sharedPreferences.edit().putBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, true).commit();
             sharedPreferences.edit().putString(QuickstartPreferences.ACTUAL_TOKEN, token).commit();
+            String confirm = sharedPreferences.getString(QuickstartPreferences.ACTUAL_TOKEN, "");
+	    Log.d(TAG, "Confirm stored token: " + confirm);
         } catch (Exception e) {
-            Log.i(TAG, "Failed to register with GCM: " + e);
+            Log.d(TAG, "Failed to register with GCM: " + e);
             sharedPreferences.edit().putBoolean(QuickstartPreferences.SENT_TOKEN_TO_SERVER, false).commit();
         }
         // Notify UI that registration has completed, so the progress indicator can be hidden.
