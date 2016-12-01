@@ -19,10 +19,11 @@ source.include_exts = py,png,jpg,kv,atlas,crt,js,css,html,gif,ico,svg,eot,woff,w
 #source.exclude_exts = mica/params.py
 
 # (list) List of directory to exclude (let empty to not exclude anything)
-source.exclude_dirs = tests, bin, mica/util, mica/data, mica/.git, mica/logs, mica/Data, mica/.git, mica/build, mica/ictc_32bit, mica/ictc_64bit, .git
+source.exclude_dirs = tests, bin, mica/util, mica/data, mica/.git, mica/logs, mica/Data, mica/.git, mica/build, mica/ictc_32bit, mica/ictc_64bit, .git, mica/test, mica/util, mica/Data, mica/mica_session, mica/serve/crewcss, mica/serve/crewfonts, mica/serve/crewimages, mica/serve/crewjs, mica/serve/JSJaC-dec-2014, mica/serve/images/tutorial, mica/twisted/test
 
 # (list) List of exclusions using pattern matching
-source.exclude_patterns = mica/params.py
+source.exclude_patterns = mica/params.py, mica/serve/chat.js, mica/serve/converse-1.0.3.js, mica/serve/converse-locales.js, mica/serve/moment-with-locales-2.15.2.js, mica/serve/strophe-1.2.8.js, mica/serve/strophe-1.2.9.js, mica/serve/backbone-1.3.3.js, mica/serve/jquery-1.11.3.js, icon-*.png, feature-1024x500.png, google-services.json, JSJaC-dec-2014, screenshot_*.png
+
 
 # (str) Application versioning (method 1)
 version.regex = __version__ = ['"](.*)['"]
