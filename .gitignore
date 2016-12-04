@@ -8,3 +8,4 @@ service/.cache
 *.swo
 mica/
 mica_session
+logs/
