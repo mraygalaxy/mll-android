@@ -416,7 +416,7 @@ public class Couch {
 
             if (checkPlayServices()) {
                 // Start IntentService to register this application with GCM.
-		Log.d("RegIntentService", "Signalling RegIntentService to perform a run...");
+                Log.d("RegIntentService", "Signalling RegIntentService to perform a run...");
                 Intent intent = new Intent(mActivity, RegistrationIntentService.class);
                 mActivity.startService(intent);
             }
@@ -635,15 +635,23 @@ public class Couch {
      * the Google Play Store or enable it in the device's system settings.
      */
     private boolean checkPlayServices() {
-        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
-        int resultCode = apiAvailability.isGooglePlayServicesAvailable(mActivity);
-        if (resultCode != 0 ) {
-            if (apiAvailability.isUserResolvableError(resultCode)) {
-                apiAvailability.getErrorDialog(mActivity, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST).show();
-            } else {
-                Log.i(TAG, "This device is not supported.");
-                mActivity.finish();
+        try {
+            GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+            int resultCode = apiAvailability.isGooglePlayServicesAvailable(mActivity);
+            if (resultCode != 0 ) {
+                if (apiAvailability.isUserResolvableError(resultCode)) {
+                    apiAvailability.getErrorDialog(mActivity, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST).show();
+                } else {
+                    Log.i(TAG, "This device is not supported.");
+                    mActivity.finish();
+                }
+                return false;
             }
+        } catch (Exception e) {
+            dumpError(e);
+            return false;
+        } catch (Error e) {
+            Log.i(TAG, "ooooo. We got a bad one. Ignoring google play services.");
             return false;
         }
         return true;
