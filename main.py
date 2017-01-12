@@ -56,6 +56,10 @@ print "25"
 
 sys.path = [cwd, cwd + "mica/"] + sys.path
 
+print "25.5"
+
+#os.environ['REQUESTS_CQ_BUNDLE'] = cwd + "mica/certifi/cacert.pem"
+
 print "26"
 #WebView = autoclass('android.webkit.WebView')
 WebView = autoclass("org.renpy.android.MyWebView")
