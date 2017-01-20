@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
-__version__ = "0.9.4"
+__version__ = "0.9.5"
 print "1"
 import kivy
 print "2"

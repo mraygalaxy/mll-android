@@ -341,11 +341,11 @@ public class Couch {
             Log.d(TAG, "Trying to get build android context.");
             MicaContext mc = new MicaContext(context);
             Log.d(TAG, "Trying to make manager.");
-            Manager.enableLogging(com.couchbase.lite.util.Log.TAG, com.couchbase.lite.util.Log.VERBOSE);
+            //Manager.enableLogging(com.couchbase.lite.util.Log.TAG, com.couchbase.lite.util.Log.VERBOSE);
             //Manager.enableLogging(com.couchbase.lite.util.Log.TAG_SYNC, com.couchbase.lite.util.Log.VERBOSE);
-            Manager.enableLogging(com.couchbase.lite.util.Log.TAG_QUERY, com.couchbase.lite.util.Log.VERBOSE);
-            Manager.enableLogging(com.couchbase.lite.util.Log.TAG_VIEW, com.couchbase.lite.util.Log.VERBOSE);
-            Manager.enableLogging(com.couchbase.lite.util.Log.TAG_DATABASE, com.couchbase.lite.util.Log.VERBOSE);
+            //Manager.enableLogging(com.couchbase.lite.util.Log.TAG_QUERY, com.couchbase.lite.util.Log.VERBOSE);
+            //Manager.enableLogging(com.couchbase.lite.util.Log.TAG_VIEW, com.couchbase.lite.util.Log.VERBOSE);
+            //Manager.enableLogging(com.couchbase.lite.util.Log.TAG_DATABASE, com.couchbase.lite.util.Log.VERBOSE);
             //Manager.enableLogging(com.couchbase.lite.util.Log.TAG_SYNC, com.couchbase.lite.util.Log.VERBOSE);
             //Manager.enableLogging(com.couchbase.lite.util.Log.TAG_REMOTE_REQUEST, com.couchbase.lite.util.Log.VERBOSE);
             //Manager.enableLogging(com.couchbase.lite.util.Log.TAG_ROUTER, com.couchbase.lite.util.Log.VERBOSE);
@@ -593,7 +593,8 @@ public class Couch {
 			if (start) {
 			    Log.d(TAG, "Starting replication for DB: " + database_name);
                             String filterparams = filters.get(database_name);
-		            replicate(database_name, url, true, filterparams);
+			    filters(database_name, filterparams);
+		            replicate(database_name, url, true);
 			} else {
 			    Log.d(TAG, "Stopping replication for DB: " + database_name);
 			    stop_replication(database_name);
@@ -823,15 +824,47 @@ public class Couch {
         }
     }
 
-    public int replicate(final String database_name, String server, boolean force, String filterparams) {
+    public int filters(final String database_name, String filterparams) {
+        try {
+	    Log.d(TAG, "Want to set filters for DB " + database_name + " to " + filterparams);
+	    if (filters.get(database_name) != null) {
+		    filters.remove(database_name);
+	    }
+	    filters.put(database_name, filterparams);
+
+	    Replication pull = (Replication) pulls.get(database_name);
+	    if (pull == null) {
+                Log.d(TAG, "No pulls, yet. Moving along.");
+                return 0;
+	    }
+	    assert(pull != null);
+            Map<String,Object> params = toJava(filterparams);
+            pull.setFilter((String) params.get("name"));
+            params.remove("name");
+            pull.setFilterParams(params);
+            Log.d(TAG, "Filters installed for DB " + database_name);
+            return 0;
+        } catch(Exception e) {
+            dumpError(e);
+            return -1; 
+        }
+    }
+
+    public int replicate(final String database_name, String server, boolean force) {
         boolean nopush = false;
+	String filterparams = filters.get(database_name);
+	if (filterparams == null) {
+		Log.e(TAG, "Missing filters for db " + database_name);
+		return -1;
+	}
+
         if (!database_name.equals("mica"))
             nopush = true;
         Log.d(TAG, "Checking for old replications..." + " db " + database_name);
 
         Log.d(TAG, "Parameters: " + database_name + " " + server + " " + force + " " + filterparams);
         if (pushes.get(database_name) != null || pulls.get(database_name) != null) {
-            Log.d(TAG, "Database " + database_name + " is already replicating.");
+            Log.w(TAG, "Database " + database_name + " is already replicating.");
             return 0;
         }
 
@@ -841,7 +874,7 @@ public class Couch {
         try {
             url = new URL(server);
         } catch (MalformedURLException e) {
-            Log.d(TAG, "Your replication URL is not good: " + e);
+            Log.e(TAG, "Your replication URL is not good: " + e);
             return -1;
         }
         try {
@@ -849,10 +882,6 @@ public class Couch {
 
             if (urls.get(database_name) == null) {
                     urls.put(database_name, server);
-            }
-
-            if (filters.get(database_name) == null) {
-                    filters.put(database_name, filterparams);
             }
 
             Log.d(TAG, "checking connectivity.");
