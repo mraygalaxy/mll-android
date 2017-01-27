@@ -21,6 +21,7 @@ public class RegistrationIntentService extends IntentService {
 
     public RegistrationIntentService() {
         super(TAG);
+	Log.d(TAG, "RegIntentService starting up...");
     }
 
     @Override

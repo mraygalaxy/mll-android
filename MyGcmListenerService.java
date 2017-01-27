@@ -17,6 +17,11 @@ public class MyGcmListenerService extends GcmListenerService {
 
     private static final String TAG = "MyGcmListenerService";
 
+    public MyGcmListenerService() {
+        super();
+	Log.d(TAG, "MyGcmListenerService starting up...");
+    }
+
     /**
      * Called when message is received.
      *
