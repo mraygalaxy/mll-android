@@ -1,7 +1,7 @@
 mll-android
 ============
 
-Read Alien: A Kivy/Python-for-Android project which runs the mobile version of MLL: Meta-Language Learning Systems: http://github.com/hinesmr/mica
+Read Alien: A Kivy/Python-for-Android project which runs the mobile version of MLL: Meta-Language Learning Systems: http://github.com/mraygalaxy/mica
 
 The mobile reader version is a completely offline, synchronizable, fully-functional version.
 
@@ -15,14 +15,14 @@ INSTALL:
 
 First, you need my fork of python-for-android for two missing python projects to be included in the APK:
 
-$ git clone http://github.com/hinesmr/python-for-android /path/to/mica-android/../python-for-android
+$ git clone http://github.com/mraygalaxy/python-for-android /path/to/mica-android/../python-for-android
  
    - PLEASE CLONE THIS at the same folder-level as mica-android itself. The APK configuration file build system (buildozer)
      will assume you have cloned this. Otherwise, you will end up building an API with missing pieces. So, you should end up with
-     two cloned projects. This one and <a href='http://github.com/hinesmr/python-for-android'>my fork of python-for-android</a>
+     two cloned projects. This one and <a href='http://github.com/mraygalaxy/python-for-android'>my fork of python-for-android</a>
      both sitting side-by-side on disk.
 
-$ git clone http://github.com/hinesmr/mica /path/to/mll-android/service/mica
+$ git clone http://github.com/mraygalaxy/mica /path/to/mll-android/service/mica
  
    - This clones a complete copy of MICA itself (which is this same core code used to power the mobile version) into a sub-directory
      of the mobile reader. Make sure it goes into the sub-directory "service/"
